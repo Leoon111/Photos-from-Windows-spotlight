@@ -1,7 +1,0 @@
-D:\Projects\CSharp\Photos from Windows spotlight\Photos from Windows spotlight\bin\Debug\Photos from Windows spotlight.exe.config
-D:\Projects\CSharp\Photos from Windows spotlight\Photos from Windows spotlight\bin\Debug\Photos from Windows spotlight.exe
-D:\Projects\CSharp\Photos from Windows spotlight\Photos from Windows spotlight\bin\Debug\Photos from Windows spotlight.pdb
-D:\Projects\CSharp\Photos from Windows spotlight\Photos from Windows spotlight\obj\Debug\Photos from Windows spotlight.csprojResolveAssemblyReference.cache
-D:\Projects\CSharp\Photos from Windows spotlight\Photos from Windows spotlight\obj\Debug\Photos from Windows spotlight.csproj.CoreCompileInputs.cache
-D:\Projects\CSharp\Photos from Windows spotlight\Photos from Windows spotlight\obj\Debug\Photos from Windows spotlight.exe
-D:\Projects\CSharp\Photos from Windows spotlight\Photos from Windows spotlight\obj\Debug\Photos from Windows spotlight.pdb
