@@ -26,6 +26,8 @@ namespace Photos_from_Windows_spotlight
             /// получение списка файлов в директории.
             var allPhotoFiles = new DirectoryInfo(photoFilesPath).GetFiles().ToList();
 
+            // Создание файла, пока оно здесь.
+            new XMLData().CreateNewDateFile();
 
             // новый массив для выбранных по размеру файлов
             List<string> pathGoodPhotos = new List<string>();
@@ -41,7 +43,7 @@ namespace Photos_from_Windows_spotlight
 
                         /// отбираем картинки только с шириной минимум 1900
                         if (bitmap.Width > 1900)
-                        //if (item.Length > 200000)
+                        //if (item.Length > 1900) // для портретного режима
                         {
                             pathGoodPhotos.Add(item.FullName);
                         }
