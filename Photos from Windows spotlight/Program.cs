@@ -26,8 +26,22 @@ namespace Photos_from_Windows_spotlight
             /// получение списка файлов в директории.
             var allPhotoFiles = new DirectoryInfo(photoFilesPath).GetFiles().ToList();
 
-            // Создание файла, пока оно здесь.
-            new XMLData().CreateNewDateFile();
+            /// Проверяем существованифе файла с данными по предыдущем копировании.
+            if (!File.Exists(@"../../data.xml"))
+            {
+                /// Если файла нет, значит это первый запуск, создаем файл с данными
+                new XMLData().CreateNewDateFile();
+                Console.WriteLine("Создан файл с данными о копируемых файлах");
+            }
+            /// Если файл уже существует, то мы читаем из него данные в коллекцию.
+            else
+            {
+                /// Чтение данных из файла для дальнейшей работы с ними.
+                List<PhotoData> photoDate = new XMLData().Read();
+            }
+
+            ///Delay
+            Console.ReadKey();
 
             // новый массив для выбранных по размеру файлов
             List<string> pathGoodPhotos = new List<string>();
@@ -54,7 +68,7 @@ namespace Photos_from_Windows_spotlight
 
             // выбрать место сохнанения.
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-            
+
             folderBrowserDialog.Description = "Выберите папку, куда будут сохраняться картинки";
             folderBrowserDialog.SelectedPath = @"E:\OneDrive\Новые фотографии\1\test\1\";
 

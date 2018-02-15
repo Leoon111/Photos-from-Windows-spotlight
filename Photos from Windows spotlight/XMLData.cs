@@ -13,9 +13,39 @@ namespace Photos_from_Windows_spotlight
         /// <summary>
         /// чтение данных из файла XML
         /// </summary>
-        public void Read()
+        public List<PhotoData> Read()
         {
+            var photoData = new List<PhotoData>();
+            try
+            {
+                // Создание XPath документа.
+                var document = new XPathDocument(@"../../data.xml");
+                XPathNavigator navigator = document.CreateNavigator();
 
+                // Прямой запрос XPath.
+                XPathNodeIterator iterator1 = navigator.Select("Photos/PhotoData");
+                while (iterator1.MoveNext())
+                {
+                    Console.WriteLine(iterator1.Current);
+                }
+                
+
+                // Скомпилированный запрос XPath
+                //XPathExpression expr = navigator.Compile("ListOfBooks/Book[2]/Price");
+                //XPathNodeIterator iterator2 = navigator.Select(expr);
+                //while (iterator2.MoveNext())
+                //{
+                //    Console.WriteLine(iterator2.Current);
+                //}
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+
+            return photoData;
         }
 
         /// <summary>
@@ -78,25 +108,29 @@ namespace Photos_from_Windows_spotlight
             };
 
             // формат данных в xml
-            ////<PhotoCopied>
-            ////  <Name> </Name>
-            ////  <Size> </Size>
-            ////  <FileDate> </FileDate>
-            ////  <PreviousName> </PreviousName>
-            ////</PhotoCopied>
+            ////<Photos>
+            ////    <PhotoData>
+            ////        <Name> </Name>
+            ////        <Size> </Size>
+            ////        <FileDate> </FileDate>
+            ////        <PreviousName> </PreviousName>
+            ////    </PhotoData>
+            ////</Photos
 
             xmlWriter.WriteStartDocument();
 
-            xmlWriter.WriteStartElement("PhotoCopied");
-            xmlWriter.WriteElementString("Name", "");
-            xmlWriter.WriteElementString("Size", "");
-            xmlWriter.WriteElementString("FileDate", "");
-            xmlWriter.WriteElementString("PreviousName", "");
+            xmlWriter.WriteStartElement("Photos");
+            
+            // данные для теста
+            {
+                xmlWriter.WriteStartElement("PhotoData");
+                xmlWriter.WriteElementString("Name", "123");
+                xmlWriter.WriteElementString("Size", "45");
+                xmlWriter.WriteElementString("FileDate", "12.12.12");
+                xmlWriter.WriteElementString("PreviousName", "001100");
+            }
 
             xmlWriter.Close();
-
-            // Delay.
-            Console.ReadKey();
 
         }
     }
