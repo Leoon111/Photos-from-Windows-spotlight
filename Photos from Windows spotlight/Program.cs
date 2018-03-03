@@ -25,25 +25,11 @@ namespace Photos_from_Windows_spotlight
 
             /// получение списка файлов в директории.
             var allPhotoFiles = new DirectoryInfo(photoFilesPath).GetFiles().ToList();
-
-            /// Проверяем существованифе файла с данными по предыдущем копировании.
-            if (!File.Exists(@"../../data.xml"))
-            {
-                /// Если файла нет, значит это первый запуск, создаем файл с данными
-                new XMLData().CreateNewDateFile();
-                Console.WriteLine("Создан файл с данными о копируемых файлах");
-            }
-            /// Если файл уже существует, то мы читаем из него данные в коллекцию.
-            else
-            {
-                /// Чтение данных из файла для дальнейшей работы с ними.
-                List<PhotoData> photoDate = new XMLData().Read();
-            }
-
+                                 
             ///Delay
-            Console.ReadKey();
+            //Console.ReadKey();
 
-            // новый массив для выбранных по размеру файлов
+            // новый массив для выбранных по размеру файлов из следующего перебора
             List<string> pathGoodPhotos = new List<string>();
 
             /// перебираем файлы в папке
@@ -70,33 +56,21 @@ namespace Photos_from_Windows_spotlight
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
 
             folderBrowserDialog.Description = "Выберите папку, куда будут сохраняться картинки";
-            folderBrowserDialog.SelectedPath = @"E:\OneDrive\Новые фотографии\1\test\1\";
 
+            /// Тестовая папка на моем компе, проверяю, если ее нет, то открываем Мой Компьютер
+            folderBrowserDialog.SelectedPath =
+                Directory.Exists(@"E:\OneDrive\Новые фотографии\1\test\1\") 
+                ? @"E:\OneDrive\Новые фотографии\1\test\1\"
+                : Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
+
+            
             /// метод сохранения
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
                 Console.WriteLine("Картинки сохраняем по адресу:\n {0}\n", folderBrowserDialog.SelectedPath);
+
                 /// скопировать и переименовать файлы
-                int k = 0; // переменная для имени файла (временное значение)
-                foreach (var pathGoodPhoto in pathGoodPhotos)
-                {
-                    var q = File.GetCreationTime(pathGoodPhoto).ToShortDateString();
-                    var newPath = Path.Combine(
-                        folderBrowserDialog.SelectedPath,
-                        String.Concat(
-                            "Photo_",
-                            File.GetCreationTime(pathGoodPhoto).ToString().Replace(':', '-').Replace(' ', '_'),
-                            "_",
-                            "(" + k + ")",
-                            ".jpg"
-                                      )
-                                               );
-
-                    File.Copy(pathGoodPhoto, newPath, true);
-                    k++;
-
-                    Console.WriteLine("Копирование в {0} выполнено успешно", newPath);
-                }
+                SaveMethod(pathGoodPhotos, folderBrowserDialog);
             }
             /// если не выбрали папку для расположения файлов
             else
@@ -109,6 +83,39 @@ namespace Photos_from_Windows_spotlight
 
             Console.WriteLine("\nКопирование всех картинок выполенно успешно, нажмите любую кнопку");
             Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Переименовывает и сохраняте файлы в указанную пользователем папку.
+        /// </summary>
+        /// <param name="pathGoodPhotos">Коллекция путей к файлам картинок в системной директории компьютера</param>
+        /// <param name="folderBrowserDialog">Выбранная папка пользователем для сохранния картинок</param>
+        private static void SaveMethod(List<string> pathGoodPhotos, FolderBrowserDialog folderBrowserDialog)
+        {
+            int k = 0; // переменная для имени файла (временное значение)
+
+            /// Проверяем фотото на наличие копий, уже имеющихся в папке назначения.
+
+
+            foreach (var pathGoodPhoto in pathGoodPhotos)
+            {
+                var q = File.GetCreationTime(pathGoodPhoto).ToShortDateString();
+                var newPath = Path.Combine(
+                    folderBrowserDialog.SelectedPath,
+                    String.Concat(
+                        "Photo_",
+                        File.GetCreationTime(pathGoodPhoto).ToString().Replace(':', '-').Replace(' ', '_'),
+                        "_",
+                        "(" + k + ")",
+                        ".jpg"
+                                  )
+                                           );
+
+                File.Copy(pathGoodPhoto, newPath, true);
+                k++;
+
+                Console.WriteLine("Копирование в {0} выполнено успешно", newPath);
+            }
         }
     }
 }
