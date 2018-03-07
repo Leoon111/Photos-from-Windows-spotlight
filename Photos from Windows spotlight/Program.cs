@@ -21,11 +21,11 @@ namespace Photos_from_Windows_spotlight
                     @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets"
                                              );
 
-            Console.WriteLine("GetFolderPath: {0}", photoFilesPath);
+            //Console.WriteLine("GetFolderPath: {0}", photoFilesPath);
 
             /// получение списка файлов в директории.
             var allPhotoFiles = new DirectoryInfo(photoFilesPath).GetFiles().ToList();
-                                 
+
             ///Delay
             //Console.ReadKey();
 
@@ -54,16 +54,14 @@ namespace Photos_from_Windows_spotlight
 
             // выбрать место сохнанения.
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-
             folderBrowserDialog.Description = "Выберите папку, куда будут сохраняться картинки";
-
-            /// Тестовая папка на моем компе, проверяю, если ее нет, то открываем Мой Компьютер
+            /// Тестовая папка на моем компе, проверяю, если ее нет, то открываем Мой Компьютер (если не мой компьютер)
             folderBrowserDialog.SelectedPath =
-                Directory.Exists(@"E:\OneDrive\Новые фотографии\1\test\1\") 
+                Directory.Exists(@"E:\OneDrive\Новые фотографии\1\test\1\")
                 ? @"E:\OneDrive\Новые фотографии\1\test\1\"
                 : Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
 
-            
+
             /// метод сохранения
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
@@ -72,7 +70,8 @@ namespace Photos_from_Windows_spotlight
                 /// скопировать и переименовать файлы
                 SaveMethod(pathGoodPhotos, folderBrowserDialog);
             }
-            /// если не выбрали папку для расположения файлов
+
+            /// Сообщение, если не выбрали папку для расположения файлов
             else
             {
                 Console.WriteLine("\nКопирование не выполнено по причине невыбранной папки назначения");
@@ -95,7 +94,7 @@ namespace Photos_from_Windows_spotlight
             int k = 0; // переменная для имени файла (временное значение)
 
             /// Проверяем фотото на наличие копий, уже имеющихся в папке назначения.
-
+            CheckingPhotosForCopies(ref pathGoodPhotos, folderBrowserDialog);
 
             foreach (var pathGoodPhoto in pathGoodPhotos)
             {
@@ -115,6 +114,61 @@ namespace Photos_from_Windows_spotlight
                 k++;
 
                 Console.WriteLine("Копирование в {0} выполнено успешно", newPath);
+            }
+        }
+
+        private static void CheckingPhotosForCopies(ref List<string> pathGoodPhotos, FolderBrowserDialog folderBrowserDialog)
+        {
+            /// Получаем список файлов картинок в выбранной директории.
+            var listOfImageFiles = Directory.GetFiles(folderBrowserDialog.SelectedPath, "*.jpg").ToList();
+
+            /// Получаем перцептивный хеш картинок в выбранной директории.
+            var perceptualHashOfImages = new List<Bitmap>();
+            foreach (var item in listOfImageFiles)
+            {
+                /// Уменьшаем картинку до размеров 8х8.
+                var miniImage = new Bitmap(Image.FromFile(item), 8, 8);
+                //miniImage.Save(item + ".jpg");
+
+                int[] sumOfPixelValues = new int[64]; 
+
+                /// Преобразование уменшенного изображения в градиент серого воспользовавшись формулой перевода RGB в YUV
+                /// Из нее нам потребуется компонента Y, формула конвертации которой выглядит так: Y = 0.299 x R + 0.587 x G + B x 0.114
+                for (int x = 0; x < miniImage.Width; x++)
+                {
+                    for (int y = 0; y < miniImage.Height; y++)
+                    {
+                        Color bitmapColor = miniImage.GetPixel(x, y);
+                        int colorGray = (int)(bitmapColor.R * 0.299 +
+                        bitmapColor.G * 0.587 + bitmapColor.B * 0.114);
+                        miniImage.SetPixel(x, y, Color.FromArgb(colorGray, colorGray, colorGray));
+                        sumOfPixelValues[x + y] = colorGray;
+                    }
+                }
+                //perceptualHashOfImages.Add(miniImage);
+
+                /// Вычислите среднее значение для всех 64 цветов.
+                var averageSumOfPixelValues = sumOfPixelValues.AsQueryable().Average();
+                for (int i = 0; i < sumOfPixelValues.Length; i++)
+                {
+                    if (i >= averageSumOfPixelValues)
+                    {
+                        sumOfPixelValues[i] = 1;
+                    }
+                    else
+                    {
+                        sumOfPixelValues[i] = 0;
+                    }
+                }
+                
+
+                /// Получаем уменьшенных хеш картинок из системной директории.
+
+                /// Сравниваем каждый хеш картинки из системной дирректории с хешом картинки из выбранной,
+                /// если хеш первой находит аналогию, то его убираем из списка.
+
+
+
             }
         }
     }
