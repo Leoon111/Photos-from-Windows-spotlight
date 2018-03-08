@@ -123,53 +123,68 @@ namespace Photos_from_Windows_spotlight
             var listOfImageFiles = Directory.GetFiles(folderBrowserDialog.SelectedPath, "*.jpg").ToList();
 
             /// Получаем перцептивный хеш картинок в выбранной директории.
-            var perceptualHashOfImages = new List<Bitmap>();
-            foreach (var item in listOfImageFiles)
+            var perceptualHashOfImages = new List<int[]>();
+
+            foreach (var pathToPicture in listOfImageFiles)
             {
-                /// Уменьшаем картинку до размеров 8х8.
-                var miniImage = new Bitmap(Image.FromFile(item), 8, 8);
-                //miniImage.Save(item + ".jpg");
-
-                int[] sumOfPixelValues = new int[64]; 
-
-                /// Преобразование уменшенного изображения в градиент серого воспользовавшись формулой перевода RGB в YUV
-                /// Из нее нам потребуется компонента Y, формула конвертации которой выглядит так: Y = 0.299 x R + 0.587 x G + B x 0.114
-                for (int x = 0; x < miniImage.Width; x++)
-                {
-                    for (int y = 0; y < miniImage.Height; y++)
-                    {
-                        Color bitmapColor = miniImage.GetPixel(x, y);
-                        int colorGray = (int)(bitmapColor.R * 0.299 +
-                        bitmapColor.G * 0.587 + bitmapColor.B * 0.114);
-                        miniImage.SetPixel(x, y, Color.FromArgb(colorGray, colorGray, colorGray));
-                        sumOfPixelValues[x + y] = colorGray;
-                    }
-                }
-                //perceptualHashOfImages.Add(miniImage);
-
-                /// Вычислите среднее значение для всех 64 цветов.
-                var averageSumOfPixelValues = sumOfPixelValues.AsQueryable().Average();
-                for (int i = 0; i < sumOfPixelValues.Length; i++)
-                {
-                    if (i >= averageSumOfPixelValues)
-                    {
-                        sumOfPixelValues[i] = 1;
-                    }
-                    else
-                    {
-                        sumOfPixelValues[i] = 0;
-                    }
-                }
-                
-
-                /// Получаем уменьшенных хеш картинок из системной директории.
-
-                /// Сравниваем каждый хеш картинки из системной дирректории с хешом картинки из выбранной,
-                /// если хеш первой находит аналогию, то его убираем из списка.
-
-
-
+                /// Добавляем каждый массив данных перцептивного хеша картинки в коллекцию.
+                perceptualHashOfImages.Add(PerceptualHashOfImage(pathToPicture));
             }
+
+            /// Получаем уменьшенных хеш картинок из системной директории.
+
+            /// Сравниваем хеш каждой картинки из системной дирректории с хешом картинки из выбранной,
+            /// если хеш первой находит аналогию, то его убираем из списка.
+
+
+        }
+
+        /// <summary>
+        /// Метод получения перцептивного хеша из картинки
+        /// </summary>
+        /// <param name="pathToPicture">Адрес расположения картинки</param>
+        /// <returns>Массив перцептивного хеша картинки</returns>
+        private static int[] PerceptualHashOfImage(string pathToPicture)
+        {
+            /// Уменьшаем картинку до размеров 8х8.
+            var miniImage = new Bitmap(Image.FromFile(pathToPicture), 8, 8);
+            //miniImage.Save(item + ".jpg");
+
+            /// массив значений пикселей, равный колличеству пикселей на перцептивном хеше
+            int[] sumOfPixelValues = new int[64];
+            int pixelNumber = 0;
+
+            /// Преобразование уменшенного изображения в градиент серого воспользовавшись формулой перевода RGB в YUV
+            /// Из нее нам потребуется компонента Y, формула конвертации которой выглядит так: Y = 0.299 x R + 0.587 x G + B x 0.114
+            for (int x = 0; x < miniImage.Width; x++)
+            {
+                for (int y = 0; y < miniImage.Height; y++)
+                {
+                    Color bitmapColor = miniImage.GetPixel(x, y);
+                    int colorGray = (int)(bitmapColor.R * 0.299 +
+                    bitmapColor.G * 0.587 + bitmapColor.B * 0.114);
+                    miniImage.SetPixel(x, y, Color.FromArgb(colorGray, colorGray, colorGray));
+                    sumOfPixelValues[pixelNumber++] = colorGray;
+                }
+            }
+
+            /// Вычислите среднее значение для всех 64 пикселей уменьшенного изображения
+            var averageSumOfPixelValues = sumOfPixelValues.AsQueryable().Average();
+
+            /// Заменяем каждое знанеие цвета пикселя на 1 или 0 в зависимости от того, больше оно среднего значения или меньше
+            for (int i = 0; i < sumOfPixelValues.Length; i++)
+            {
+                if (sumOfPixelValues[i] >= averageSumOfPixelValues)
+                {
+                    sumOfPixelValues[i] = 1;
+                }
+                else
+                {
+                    sumOfPixelValues[i] = 0;
+                }
+            }
+
+            return sumOfPixelValues;
         }
     }
 }
