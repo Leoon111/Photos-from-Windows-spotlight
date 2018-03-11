@@ -67,6 +67,26 @@ namespace Photos_from_Windows_spotlight
             {
                 Console.WriteLine("Картинки сохраняем по адресу:\n {0}\n", folderBrowserDialog.SelectedPath);
 
+                Console.WriteLine("Найдены картинки с датами:");
+                /// переменная для вывода дат найденных картинок
+                var DateOfTheImagesFound = new List<DateTime>();
+
+                /// Перебираем адреса найденных картинок, создавая колекцию дат картинок для информации.
+                foreach (var pathGoodPhoto in pathGoodPhotos)
+                {
+                    DateOfTheImagesFound.Add(File.GetCreationTime(pathGoodPhoto));
+                }
+
+                /// Сортируем коллекцию по умолчанию
+                DateOfTheImagesFound.Sort();
+
+                /// Выводим данные на консоль.
+                foreach (var item in DateOfTheImagesFound)
+                {
+                    Console.WriteLine(item);
+                }
+                Console.WriteLine("\n");
+
                 /// скопировать и переименовать файлы
                 SaveMethod(pathGoodPhotos, folderBrowserDialog);
             }
@@ -78,9 +98,7 @@ namespace Photos_from_Windows_spotlight
             }
             folderBrowserDialog.Dispose();
 
-
-
-            Console.WriteLine("\nКопирование всех картинок выполенно успешно, нажмите любую кнопку");
+            Console.WriteLine("Нажмите любую кнопку для выхода");
             Console.ReadKey();
         }
 
@@ -95,6 +113,12 @@ namespace Photos_from_Windows_spotlight
 
             /// Проверяем фотото на наличие копий, уже имеющихся в папке назначения.
             CheckingPhotosForCopies(ref pathGoodPhotos, folderBrowserDialog);
+
+            if (pathGoodPhotos.Count == 0)
+            {
+                Console.WriteLine("Нет не одной новой картинки.\n");
+                return;
+            }
 
             foreach (var pathGoodPhoto in pathGoodPhotos)
             {
@@ -117,25 +141,76 @@ namespace Photos_from_Windows_spotlight
             }
         }
 
-        private static void CheckingPhotosForCopies(ref List<string> pathGoodPhotos, FolderBrowserDialog folderBrowserDialog)
+        /// <summary>
+        /// Проверяет наличие копий картинок в данных директориях.
+        /// </summary>
+        /// <param name="pathGoodPhotos">Коллекция адресов из одной дирректории</param>
+        /// <param name="folderBrowserDialog">Выбранная папка для копирования в нее картинок</param>
+        private static void CheckingPhotosForCopies(ref List<string> pathGoodPhotosOfImageInTheSystemDirectory, FolderBrowserDialog folderBrowserDialog)
         {
             /// Получаем список файлов картинок в выбранной директории.
             var listOfImageFiles = Directory.GetFiles(folderBrowserDialog.SelectedPath, "*.jpg").ToList();
 
             /// Получаем перцептивный хеш картинок в выбранной директории.
-            var perceptualHashOfImages = new List<int[]>();
 
+            /// Коллекция перцептивного хеша картинок в выбранной директории.
+            var perceptualHashOfImagesInTheCollection = new List<int[]>();
+
+            /// Перебираем каждый адрес к картинке в выбранной директории.
             foreach (var pathToPicture in listOfImageFiles)
             {
-                /// Добавляем каждый массив данных перцептивного хеша картинки в коллекцию.
-                perceptualHashOfImages.Add(PerceptualHashOfImage(pathToPicture));
+                /// Добавляем перцептивный хеш каждой картинки в коллекцию.
+                perceptualHashOfImagesInTheCollection.Add(PerceptualHashOfImage(pathToPicture));
             }
 
-            /// Получаем уменьшенных хеш картинок из системной директории.
+            /// Адреса картинок, которые уже есть в выбранной дирректории.
+            var existingImageURLs = new List<string>();
 
-            /// Сравниваем хеш каждой картинки из системной дирректории с хешом картинки из выбранной,
-            /// если хеш первой находит аналогию, то его убираем из списка.
+            /// Перебор коллекции адресов в системной директории
+            foreach (var pathGoodPhotoOfImageInTheSystemDirectory in pathGoodPhotosOfImageInTheSystemDirectory)
+            {
+                /// Получаем перцептивный хеш одной картинки из системной директории.
+                int[] perceptualHashOfImageInTheSystemDirectory = PerceptualHashOfImage(pathGoodPhotoOfImageInTheSystemDirectory);
 
+                /// Сравниваем хеш каждой картинки из системной дирректории с хешом картинки из выбранной по каждому числу,
+                /// если хеш первой находит аналогию, то адрес этой картинки добавляем в сиписок, который 
+                /// далее вычтем из списка адресов.
+                foreach (var perceptualHashImageInTheCollection in perceptualHashOfImagesInTheCollection)
+                {
+                    /// Счетчик совпадений данных в массиве перцептивного хеша.
+                    int coincidenceCounter = 0;
+
+                    /// Перебираем каждый массив данных по числу.
+                    for (int i = 0; i < perceptualHashOfImageInTheSystemDirectory.Length; i++)
+                    {
+                        /// Если цифра с одинаковым индексом в хешах совпадает, добавляем 1 к счетчику.
+                        if (perceptualHashOfImageInTheSystemDirectory[i] == perceptualHashImageInTheCollection[i])
+                        {
+                            coincidenceCounter++;
+                        }
+                    }
+
+                    /// Если совпадение составляет больше 62 из 64, то мы считаем, что фото идентичное
+                    /// и добавляем в коллекцию адресов уже существующих картинок.
+                    if (coincidenceCounter > 62)
+                    {
+                        existingImageURLs.Add(pathGoodPhotoOfImageInTheSystemDirectory);
+                    }
+                }
+
+
+            }
+
+            /// Проверяем, если не пустая коллекция адресов с идентичными картинками, то
+            if (existingImageURLs.Count != 0)
+            {
+                /// Перебираем коллекцию адресов на удаление.
+                foreach (var item in existingImageURLs)
+                {
+                    /// Удаляем по одному адресу из коллекции.
+                    pathGoodPhotosOfImageInTheSystemDirectory.Remove(item);
+                }
+            }
 
         }
 
