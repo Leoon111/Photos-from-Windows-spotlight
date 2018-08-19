@@ -1,25 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.XPath;
 
-namespace Photos_from_Windows_spotlight
+namespace Photos_Windows_spotlight
 {
     class XMLData
     {
+
+        /// <summary>
+        /// путь к файлу конфигурации
+        /// </summary>
+        private string _pathToFileConfiguration;
+
+        /// <summary>
+        /// путь к папке с сохранненными фото.
+        /// </summary>
+        private string _pathSaveImage;
+
+        public XMLData()
+        {
+            // todo перенести в файл конфигурации
+            _pathToFileConfiguration = @"../../data.xml";
+        }
+
+        public string GetPathSaveImages()
+        {
+
+            return null;
+        }
+
+        private Configuration GetXmlConfigurations()
+        {
+            if (IsExistFileConfiguration())
+            {
+                return Read();
+            }
+            return null;
+        }
+
         /// <summary>
         /// чтение данных из файла XML
         /// </summary>
-        public List<PhotoData> Read()
+        public Configuration Read()
         {
             var photoData = new List<PhotoData>();
             try
             {
                 // Создание XPath документа.
-                var document = new XPathDocument(@"../../data.xml");
+                var document = new XPathDocument(_pathToFileConfiguration);
                 XPathNavigator navigator = document.CreateNavigator();
 
                 // Прямой запрос XPath.
@@ -28,7 +61,6 @@ namespace Photos_from_Windows_spotlight
                 {
                     Console.WriteLine(iterator1.Current);
                 }
-                
 
                 // Скомпилированный запрос XPath
                 //XPathExpression expr = navigator.Compile("ListOfBooks/Book[2]/Price");
@@ -43,9 +75,7 @@ namespace Photos_from_Windows_spotlight
 
                 throw;
             }
-
-
-            return photoData;
+            return null;
         }
 
         /// <summary>
@@ -54,7 +84,7 @@ namespace Photos_from_Windows_spotlight
         public void Write()
         {
             // Создание XPath документа.
-            var document = new XPathDocument(@"../../data.xml");
+            var document = new XPathDocument(_pathToFileConfiguration);
 
             // Единственное назначение XPathDocument - создание навигатора.
             XPathNavigator navigator = document.CreateNavigator();
@@ -99,7 +129,7 @@ namespace Photos_from_Windows_spotlight
         /// </summary>
         public void CreateNewDateFile()
         {
-            var xmlWriter = new XmlTextWriter("../../data.xml", null)
+            var xmlWriter = new XmlTextWriter(_pathToFileConfiguration, null)
             {
                 Formatting = Formatting.Indented,
                 IndentChar = '\t',
@@ -120,7 +150,7 @@ namespace Photos_from_Windows_spotlight
             xmlWriter.WriteStartDocument();
 
             xmlWriter.WriteStartElement("Photos");
-            
+
             // данные для теста
             {
                 xmlWriter.WriteStartElement("PhotoData");
@@ -132,6 +162,15 @@ namespace Photos_from_Windows_spotlight
 
             xmlWriter.Close();
 
+        }
+
+        /// <summary>
+        /// Проверяем наличие файла конфигурации в папке с файлом
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsExistFileConfiguration()
+        {
+            return File.Exists(@"../../data.xml");
         }
     }
 }
