@@ -192,7 +192,7 @@ namespace Photos_from_Windows_spotlight
 
                     /// Если совпадение составляет больше 62 из 64, то мы считаем, что фото идентичное
                     /// и добавляем в коллекцию адресов уже существующих картинок.
-                    if (coincidenceCounter > 62)
+                    if (coincidenceCounter > 63)
                     {
                         existingImageURLs.Add(pathGoodPhotoOfImageInTheSystemDirectory);
                     }
