@@ -11,31 +11,23 @@ namespace Photos_Windows_spotlight
     /// </summary>
     class PhotoData
     {
-        #region Private fields
+
+        #region Public constructors
 
         /// <summary>
-        /// имя файла, которым мы его сохранили
+        /// имя картинки при последнем сохнании
         /// </summary>
-        private string _previouslySavedName;
+        public string PreviouslySavedName { get; set; }
 
         /// <summary>
-        /// дата перовй обработки файла
+        /// дата обнарушения фото
         /// </summary>
-        private DateTime _fileDate;
+        public DateTime FileDate { get; set; }
 
         /// <summary>
         /// перцептивный хэш картинки
         /// </summary>
-        private string _perceptualHashOfImages;
-
-        #endregion
-
-        #region Public constructors
-
-        public string PreviouslySavedName { get => _previouslySavedName; set => _previouslySavedName = value; }
-        public DateTime FileDate { get => _fileDate; set => _fileDate = value; }
-        public string PerceptualHashOfImages { get => _perceptualHashOfImages; set => _perceptualHashOfImages = value; }
-
+        public string PerceptualHashOfImages { get; set; }
 
         #endregion
     }

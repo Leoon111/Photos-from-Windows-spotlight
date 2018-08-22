@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Serialization;
 using System.Xml.XPath;
 
 namespace Photos_Windows_spotlight
@@ -49,30 +50,21 @@ namespace Photos_Windows_spotlight
         public Configuration Read()
         {
             var photoData = new List<PhotoData>();
+            string serializedData = "";
             try
             {
-                // Создание XPath документа.
-                var document = new XPathDocument(_pathToFileConfiguration);
-                XPathNavigator navigator = document.CreateNavigator();
-
-                // Прямой запрос XPath.
-                XPathNodeIterator iterator1 = navigator.Select("Photos/PhotoData");
-                while (iterator1.MoveNext())
+                if (File.Exists(_pathToFileConfiguration))
                 {
-                    Console.WriteLine(iterator1.Current);
+                    serializedData = File.ReadAllText(_pathToFileConfiguration);
                 }
 
-                // Скомпилированный запрос XPath
-                //XPathExpression expr = navigator.Compile("ListOfBooks/Book[2]/Price");
-                //XPathNodeIterator iterator2 = navigator.Select(expr);
-                //while (iterator2.MoveNext())
-                //{
-                //    Console.WriteLine(iterator2.Current);
-                //}
+                var xmlSerializer = new XmlSerializer(typeof(Configuration));
+                var stringReader = new StringReader(serializedData);
+                Configuration collection = (Configuration)xmlSerializer.Deserialize(stringReader);
             }
+
             catch (Exception)
             {
-
                 throw;
             }
             return null;
@@ -81,46 +73,14 @@ namespace Photos_Windows_spotlight
         /// <summary>
         /// запись данных в файл XML
         /// </summary>
-        public void Write()
+        async public void Write(Configuration myConfiguration)
         {
-            // Создание XPath документа.
-            var document = new XPathDocument(_pathToFileConfiguration);
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(Configuration));
+            StringWriter stringWriter = new StringWriter();
+            xmlSerializer.Serialize(stringWriter, myConfiguration);
 
-            // Единственное назначение XPathDocument - создание навигатора.
-            XPathNavigator navigator = document.CreateNavigator();
-
-            // При создании навигатора при помощи XPathDocument возможно выполнять только чтение.
-            Console.WriteLine("Навигатор создан только для чтения. Свойство CanEdit = {0}.", navigator.CanEdit);
-
-            // Используя XmlDocument навигатор можно использовать и для редактирования.
-            var xmldoc = new XmlDocument();
-            xmldoc.Load("books.xml");
-
-            navigator = xmldoc.CreateNavigator();
-            Console.WriteLine("Навигатор получил возможность редактирования. Свойство CanEdit = {0}.", navigator.CanEdit);
-
-            // Теперь можно попробовать что-то записать в XML-документ.
-            // Выполняем навигацию к узлу Book.
-            navigator.MoveToChild("ListOfBooks", "");
-            navigator.MoveToChild("Book", "");
-
-            // Проводим вставку значений.
-            navigator.InsertBefore("<InsertBefore>insert_before</InsertBefore>");
-            navigator.InsertAfter("<InsertAfter>insert_after</InsertAfter>");
-            navigator.AppendChild("<AppendChild>append_child</AppendChild>");
-
-            navigator.MoveToNext("Book", "");
-
-            navigator.InsertBefore("<InsertBefore>1111111111</InsertBefore>");
-            navigator.InsertAfter("<InsertAfter>2222222222</InsertAfter>");
-            navigator.AppendChild("<AppendChild>3333333333</AppendChild>");
-
-            // Сохраняем изменения.
-            xmldoc.Save("books.xml");
-
-            // Delay.
-            Console.ReadKey();
-
+            // xml для теста в виде строки потока
+            string xml = stringWriter.ToString();
 
         }
 

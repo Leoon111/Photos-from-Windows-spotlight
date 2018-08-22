@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Photos_Windows_spotlight
 {
     class Configuration
     {
-        private string _pathFile;
-        private List<PhotoData> photoDatas;
+        public string PathFiles { get; set; }
 
-        public string PathFile { get => _pathFile; set => _pathFile = value; }
-
-        public List<PhotoData> PhotoDatas { get => photoDatas; set => photoDatas = value; }
+        [XmlArray("PhotoDatas")]
+        public List<PhotoData> PhotoDatas { get; set; }
     }
 }

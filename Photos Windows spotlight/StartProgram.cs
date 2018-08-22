@@ -13,6 +13,8 @@ namespace Photos_Windows_spotlight
     {
         public StartProgram()
         {
+            // проверяем, если в настройках есть "Запускать проверку в фоне при старет", то старуем
+
 
         }
 
