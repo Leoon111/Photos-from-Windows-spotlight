@@ -13,18 +13,52 @@ namespace Photos_Windows_spotlight
     class StartProgram
     {
         private MainWindow _mainWindow;
+        private XMLData _xmlData;
+        private Configuration _configuration;
 
         public StartProgram()
         {
-            // проверяем, если в настройках есть "Запускать проверку в фоне при старет", то старуем
-
-
+            _xmlData = new XMLData();
+            // ? проверяем, если в настройках есть "Запускать проверку в фоне при старет", то старуем
         }
 
+        /// <summary>
+        /// Запускает автоматические действия проверки файла конфигурации.
+        /// </summary>
+        /// <param name="mainWindow"></param>
         public void Run(MainWindow mainWindow)
         {
             _mainWindow = mainWindow;
-            // проверяем, есть ли в дирректроии файл с конфигурацией
+            SetTextOutputForWin("! Внимание ! В данный момент все данные выводятся в данное окно.\n");
+            try
+            {
+                // проверяем, есть ли в дирректроии файл с конфигурацией
+                if (XMLData.IsExistFileConfiguration())
+                {
+                    SetTextOutputForWin("Файл конфигурации найден.");
+                    _configuration = _xmlData.GetXmlConfigurations();
+                    if (_configuration != null)
+                    {
+                        _mainWindow.TextBoxPathToDirectory.Text = _configuration.PathFiles;
+                    }
+                    else
+                    {
+                        SetTextOutputForWin("! Файл конфигурации пуст.");
+                    }
+                }
+                else
+                {
+                    SetTextOutputForWin("Файл конфигурайии не найден.");
+                    XMLData.CreateXMLFile();
+                    SetTextOutputForWin("Создан новый файл конфигурации.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Подкрасить красным, пока вывожу все данные в окно.
+                SetTextOutputForWin($"! Произошла ошибка при обнаружении или создании файла конфигурации: {ex.Message}");
+                SetTextOutputForWin("! Автоматичские действия прерваны.");
+            }
 
             // запускаем в тихом режиме поиск картинок в дирректории Windows
 

@@ -16,14 +16,14 @@ namespace Photos_Windows_spotlight
         /// <summary>
         /// путь к файлу конфигурации
         /// </summary>
-        private string _pathToFileConfiguration;
+        private static string _pathToFileConfiguration;
 
         /// <summary>
         /// путь к папке с сохранненными фото.
         /// </summary>
         private string _pathSaveImage;
 
-        public XMLData()
+        static XMLData()
         {
             // todo перенести в файл конфигурации
             _pathToFileConfiguration = @"../../data.xml";
@@ -35,8 +35,13 @@ namespace Photos_Windows_spotlight
             return null;
         }
 
-        private Configuration GetXmlConfigurations()
+        /// <summary>
+        /// Получение данных из файла конфигурации, ошибки не отлавливаются, выкидываются наверх.
+        /// </summary>
+        /// <returns></returns>
+        public Configuration GetXmlConfigurations()
         {
+            // todo оченить, нужна ли тут проверка, если ошибки специально выкидываем наерх?
             if (IsExistFileConfiguration())
             {
                 return Read();
@@ -49,25 +54,20 @@ namespace Photos_Windows_spotlight
         /// </summary>
         public Configuration Read()
         {
-            var photoData = new List<PhotoData>();
-            string serializedData = "";
-            try
-            {
-                if (File.Exists(_pathToFileConfiguration))
-                {
-                    serializedData = File.ReadAllText(_pathToFileConfiguration);
-                }
+            Configuration collectionDate = null;
 
+            if (File.Exists(_pathToFileConfiguration))
+            {
+                string serializedData = File.ReadAllText(_pathToFileConfiguration);
+                if (serializedData == "")
+                {
+                    return null;
+                }
                 var xmlSerializer = new XmlSerializer(typeof(Configuration));
                 var stringReader = new StringReader(serializedData);
-                Configuration collection = (Configuration)xmlSerializer.Deserialize(stringReader);
+                collectionDate = (Configuration)xmlSerializer.Deserialize(stringReader);
             }
-
-            catch (Exception)
-            {
-                throw;
-            }
-            return null;
+            return collectionDate;
         }
 
         /// <summary>
@@ -130,7 +130,17 @@ namespace Photos_Windows_spotlight
         /// <returns></returns>
         public static bool IsExistFileConfiguration()
         {
-            return File.Exists(@"../../data.xml");
+            return File.Exists(_pathToFileConfiguration);
+        }
+
+        /// <summary>
+        /// Создаем файл конфигурации
+        /// </summary>
+        /// <returns></returns>
+        public static bool CreateXMLFile()
+        {
+            File.Create(_pathToFileConfiguration);
+            return true;
         }
     }
 }
