@@ -11,7 +11,7 @@ namespace Photos_Windows_spotlight
     {
         public string PathFiles { get; set; }
 
-        [XmlArray("PhotoDatas")]
-        public List<PhotoData> PhotoDatas { get; set; }
+        [XmlArray("PhotoDataset")]
+        public List<PhotoData> PhotoDataset { get; set; }
     }
 }

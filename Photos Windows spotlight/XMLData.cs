@@ -23,6 +23,13 @@ namespace Photos_Windows_spotlight
         /// </summary>
         private string _pathSaveImage;
 
+        private Configuration _configurationDate;
+
+        /// <summary>
+        /// Переменная для сообщения, что файл конфигурации был изменен.
+        /// </summary>
+        private bool _needUpdateDataFile = false;
+
         static XMLData()
         {
             // todo перенести в файл конфигурации
@@ -44,7 +51,7 @@ namespace Photos_Windows_spotlight
             // todo оченить, нужна ли тут проверка, если ошибки специально выкидываем наерх?
             if (IsExistFileConfiguration())
             {
-                return Read();
+                return ReadXml();
             }
             return null;
         }
@@ -52,9 +59,9 @@ namespace Photos_Windows_spotlight
         /// <summary>
         /// чтение данных из файла XML
         /// </summary>
-        public Configuration Read()
+        public Configuration ReadXml()
         {
-            Configuration collectionDate = null;
+            _configurationDate = null;
 
             if (File.Exists(_pathToFileConfiguration))
             {
@@ -65,15 +72,48 @@ namespace Photos_Windows_spotlight
                 }
                 var xmlSerializer = new XmlSerializer(typeof(Configuration));
                 var stringReader = new StringReader(serializedData);
-                collectionDate = (Configuration)xmlSerializer.Deserialize(stringReader);
+                _configurationDate = (Configuration)xmlSerializer.Deserialize(stringReader);
             }
-            return collectionDate;
+            return _configurationDate;
         }
 
         /// <summary>
-        /// запись данных в файл XML
+        /// Добавляет в файл конфигурации данные. (читает из xml и заменяет в ней все с добавленными данными)
         /// </summary>
-        async public void Write(Configuration myConfiguration)
+        /// <param name="newConfiguration">Новые данные</param>
+        public void AddNewConfiguration(Configuration newConfiguration)
+        {
+            Configuration xmlConfiguration = null;
+            // проверяем с помощью флага, нужно нам ли загружать новые данные из файла.
+            //if (_needUpdateDataFile)
+            //{
+               xmlConfiguration = ReadXml();
+            //}
+            if (xmlConfiguration != null)
+            {
+                if (newConfiguration.PathFiles != "" &&
+                    xmlConfiguration.PathFiles != newConfiguration.PathFiles)
+                {
+                    xmlConfiguration.PathFiles = newConfiguration.PathFiles;
+                }
+                if (newConfiguration.PhotoDataset.Count > 0)
+                {
+                    xmlConfiguration.PhotoDataset.AddRange(newConfiguration.PhotoDataset);
+                }
+            }
+            else
+            {
+                Write(xmlConfiguration);
+            }
+            _needUpdateDataFile = true;
+            //return xmlConfiguration;
+        }
+
+        /// <summary>
+        /// Сереализует xml в файл (проверить, предыдущую конфигурацию в классе, файл перезаписывается)
+        /// </summary>
+        /// <param name="myConfiguration">данный для записи</param>
+        public void Write(Configuration myConfiguration)
         {
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(Configuration));
             StringWriter stringWriter = new StringWriter();
@@ -82,6 +122,7 @@ namespace Photos_Windows_spotlight
             // xml для теста в виде строки потока
             string xml = stringWriter.ToString();
 
+            File.WriteAllText(_pathToFileConfiguration, xml);
         }
 
         /// <summary>

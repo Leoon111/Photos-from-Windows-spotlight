@@ -26,7 +26,7 @@ namespace Photos_Windows_spotlight
         /// Запускает автоматические действия проверки файла конфигурации.
         /// </summary>
         /// <param name="mainWindow"></param>
-        public void Run(MainWindow mainWindow)
+        public XMLData Run(MainWindow mainWindow)
         {
             _mainWindow = mainWindow;
             SetTextOutputForWin("! Внимание ! В данный момент все данные выводятся в данное окно.\n");
@@ -62,7 +62,7 @@ namespace Photos_Windows_spotlight
 
             // запускаем в тихом режиме поиск картинок в дирректории Windows
 
-
+            return _xmlData;
         }
 
         public List<string> SearchFilesInWindowsFolder()
@@ -115,7 +115,7 @@ namespace Photos_Windows_spotlight
         /// <returns></returns>
         public bool SetTextOutputForWin(string setText)
         {
-            _mainWindow.OutputForWin.Content += $"\n{setText}";
+            _mainWindow.OutputForWin.Text += $"\n{setText}";
             // todo добавить проверку выведения текста, здесь за этим возвращаемое значение
             return true;
         }

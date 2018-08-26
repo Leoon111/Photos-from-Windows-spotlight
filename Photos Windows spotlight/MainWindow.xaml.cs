@@ -28,6 +28,10 @@ namespace Photos_Windows_spotlight
 
         private StartProgram _startProgram;
 
+        private List<string> _pathGoodPhotos;
+
+        private XMLData _xMLData;
+
         // todo необходим рефракторинг
 
         public MainWindow()
@@ -35,7 +39,7 @@ namespace Photos_Windows_spotlight
             InitializeComponent();
             // Этот метод будет запускать фоновые задачи, сейчас не реализую
             _startProgram = new StartProgram();
-            _startProgram.Run(this);
+            _xMLData = _startProgram.Run(this);
         }
 
         private void ButtonPathToDirectory_Click(object sender, RoutedEventArgs e)
@@ -55,41 +59,53 @@ namespace Photos_Windows_spotlight
             {
                 TextBoxPathToDirectory.Text = _pathSaveImages = _folderBrowserDialog.SelectedPath;
 
+                // сразу сохраняем место сохранения в конфигурационный файл (на данный момент так)
+                _xMLData.AddNewConfiguration(new Configuration() {PathFiles = _pathSaveImages});
+
                 _startProgram.SetTextOutputForWin($"Картинки сохраняем по адресу:\n {_pathSaveImages}");
 
-                _startProgram.SetTextOutputForWin("Найдены картинки с датами:");
-                /// переменная для вывода дат найденных картинок
-                var DateOfTheImagesFound = new List<DateTime>();
+                SaveImagesButton.IsEnabled = true;
 
-                var pathGoodPhotos = _startProgram.SearchFilesInWindowsFolder();
-
-                /// Перебираем адреса найденных картинок, создавая колекцию дат картинок для информации.
-                foreach (var pathGoodPhoto in pathGoodPhotos)
-                {
-                    DateOfTheImagesFound.Add(File.GetCreationTime(pathGoodPhoto));
-                }
-
-                /// Сортируем коллекцию по умолчанию
-                DateOfTheImagesFound.Sort();
-
-                /// Выводим данные на консоль.
-                foreach (var item in DateOfTheImagesFound)
-                {
-                    _startProgram.SetTextOutputForWin(item.ToString());
-                }
-                Console.WriteLine("\n");
-
-                /// скопировать и переименовать файлы
-                _startProgram.SaveMethod(pathGoodPhotos, _folderBrowserDialog);
             }
 
             /// Сообщение, если не выбрали папку для расположения файлов
             else
             {
-                _startProgram.SetTextOutputForWin("Копирование не выполнено по причине невыбранной папки назначения");
+                _startProgram.SetTextOutputForWin("Необходимо выбрать папку для сохранения файлов");
             }
             _folderBrowserDialog.Dispose();
 
+        }
+
+        private void FindNewImagesButton_Click(object sender, RoutedEventArgs e)
+        {
+            _startProgram.SetTextOutputForWin("Найдены картинки с датами:");
+            /// переменная для вывода дат найденных картинок
+            var DateOfTheImagesFound = new List<DateTime>();
+
+            _pathGoodPhotos = _startProgram.SearchFilesInWindowsFolder();
+
+            /// Перебираем адреса найденных картинок, создавая колекцию дат картинок для информации.
+            foreach (var pathGoodPhoto in _pathGoodPhotos)
+            {
+                DateOfTheImagesFound.Add(File.GetCreationTime(pathGoodPhoto));
+            }
+
+            /// Сортируем коллекцию по умолчанию
+            DateOfTheImagesFound.Sort();
+
+            /// Выводим данные на консоль.
+            foreach (var item in DateOfTheImagesFound)
+            {
+                _startProgram.SetTextOutputForWin(item.ToString());
+            }
+            Console.WriteLine("\n");
+        }
+
+        private void SaveImagesButton_Click(object sender, RoutedEventArgs e)
+        {
+            /// скопировать и переименовать файлы
+            _startProgram.SaveMethod(_pathGoodPhotos, _folderBrowserDialog);
         }
     }
 }

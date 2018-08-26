@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Photos_Windows_spotlight"
         mc:Ignorable="d"
         Title="Фото с заставки Windows" Height="450" Width="800">
-    <Grid Background="#FFFAFAF8">
+    <Grid Background="#FFF5F5F4">
         <Grid HorizontalAlignment="Left" Height="399" Margin="10,10,0,0" VerticalAlignment="Top" Width="772">
             <Grid.RowDefinitions>
                 <RowDefinition Height="20*"/>
@@ -24,27 +24,33 @@
             <Button Content="Обзор"
                     Name="ButtonPathToDirectory"
                     Margin="425,5,273,0" 
-                    VerticalAlignment="Top" Height="23" Grid.Row="1" Click="ButtonPathToDirectory_Click"/>
-
-            <Label Content=""
+                    VerticalAlignment="Top" Height="23" Grid.Row="1" 
+                    Click="ButtonPathToDirectory_Click"/>
+            
+            <TextBlock 
+                   TextWrapping="Wrap"
                    Name="OutputForWin"
                    HorizontalAlignment="Left" 
                    Height="266" 
                    Margin="10,10,0,0" 
                    VerticalAlignment="Top" 
-                   Width="752" Grid.Row="2"/>
-            <Button Content="Button" 
+                   Width="752" Grid.Row="2" Background="White"/>
+            
+            <Button Content="Найти новые изображения"
+                    Name="FindNewImagesButton"
                     HorizontalAlignment="Left" 
-                    Margin="480,20,0,0" 
+                    Margin="335,20,0,0" 
                     Grid.Row="3" 
                     VerticalAlignment="Top" 
-                    Width="76" Height="20"/>
-            <Button Content="Button" 
+                    Width="158" Height="20" Click="FindNewImagesButton_Click"/>
+            <Button Content="Сохранить изображения" 
+                    Name="SaveImagesButton"
+                    IsEnabled="False"
                     HorizontalAlignment="Left" 
-                    Margin="580,20,0,0" 
+                    Margin="515,20,0,0" 
                     Grid.Row="3" 
                     VerticalAlignment="Top" 
-                    Width="74" Height="20"/>
+                    Width="141" Height="20" Click="SaveImagesButton_Click"/>
             <Button Content="Button" 
                     HorizontalAlignment="Left" 
                     Margin="680,20,0,0" 
