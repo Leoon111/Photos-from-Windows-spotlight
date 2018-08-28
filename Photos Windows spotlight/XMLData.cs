@@ -96,14 +96,14 @@ namespace Photos_Windows_spotlight
                 {
                     xmlConfiguration.PathFiles = newConfiguration.PathFiles;
                 }
-                if (newConfiguration.PhotoDataset.Count > 0)
+                if (newConfiguration.PhotoDataset != null && newConfiguration.PhotoDataset.Count > 0)
                 {
                     xmlConfiguration.PhotoDataset.AddRange(newConfiguration.PhotoDataset);
                 }
             }
             else
             {
-                Write(xmlConfiguration);
+                Write(newConfiguration);
             }
             _needUpdateDataFile = true;
             //return xmlConfiguration;

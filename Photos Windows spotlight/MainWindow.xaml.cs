@@ -28,7 +28,7 @@ namespace Photos_Windows_spotlight
 
         private StartProgram _startProgram;
 
-        private List<string> _pathGoodPhotos;
+        private List<string> _goodPhotosCollectionsPath;
 
         private XMLData _xMLData;
 
@@ -40,6 +40,12 @@ namespace Photos_Windows_spotlight
             // Этот метод будет запускать фоновые задачи, сейчас не реализую
             _startProgram = new StartProgram();
             _xMLData = _startProgram.Run(this);
+            // полсе работы метода проверяем, если мы внесли изменения в текстбокс, то здесь это изменение присваиваем переменной
+            // ! на данный момент так, покак не решил как буду делать по другому
+            if (TextBoxPathToDirectory.Text != "")
+            {
+                _pathSaveImages = TextBoxPathToDirectory.Text;
+            }
         }
 
         private void ButtonPathToDirectory_Click(object sender, RoutedEventArgs e)
@@ -64,7 +70,7 @@ namespace Photos_Windows_spotlight
 
                 _startProgram.SetTextOutputForWin($"Картинки сохраняем по адресу:\n {_pathSaveImages}");
 
-                SaveImagesButton.IsEnabled = true;
+                SaveImagesButton.IsEnabled = ValidateVisibleSaveButton();
 
             }
 
@@ -79,14 +85,13 @@ namespace Photos_Windows_spotlight
 
         private void FindNewImagesButton_Click(object sender, RoutedEventArgs e)
         {
-            _startProgram.SetTextOutputForWin("Найдены картинки с датами:");
             /// переменная для вывода дат найденных картинок
             var DateOfTheImagesFound = new List<DateTime>();
 
-            _pathGoodPhotos = _startProgram.SearchFilesInWindowsFolder();
+            _goodPhotosCollectionsPath = _startProgram.SearchFilesInWindowsFolder();
 
             /// Перебираем адреса найденных картинок, создавая колекцию дат картинок для информации.
-            foreach (var pathGoodPhoto in _pathGoodPhotos)
+            foreach (var pathGoodPhoto in _goodPhotosCollectionsPath)
             {
                 DateOfTheImagesFound.Add(File.GetCreationTime(pathGoodPhoto));
             }
@@ -94,18 +99,30 @@ namespace Photos_Windows_spotlight
             /// Сортируем коллекцию по умолчанию
             DateOfTheImagesFound.Sort();
 
-            /// Выводим данные на консоль.
+            /// Формируем сообщение для вывода в окно.
+            string outputMessage = "Найдены картинки с датами загрузки в Windows:";
             foreach (var item in DateOfTheImagesFound)
             {
-                _startProgram.SetTextOutputForWin(item.ToString());
+                outputMessage += $"\n{DateOfTheImagesFound.IndexOf(item)} - {item.ToString()}";
             }
-            Console.WriteLine("\n");
+
+            _startProgram.SetTextOutputForWin(outputMessage);
+            SaveImagesButton.IsEnabled = ValidateVisibleSaveButton();
         }
 
         private void SaveImagesButton_Click(object sender, RoutedEventArgs e)
         {
             /// скопировать и переименовать файлы
-            _startProgram.SaveMethod(_pathGoodPhotos, _folderBrowserDialog);
+            _startProgram.SaveMethod(_goodPhotosCollectionsPath, _pathSaveImages);
+        }
+
+        /// <summary>
+        /// Проверка, должна ли кнопка Сохранить быть активна.
+        /// </summary>
+        /// <returns></returns>
+        private bool ValidateVisibleSaveButton()
+        {
+            return _goodPhotosCollectionsPath != null && _goodPhotosCollectionsPath.Count > 0 && _pathSaveImages != null;
         }
     }
 }

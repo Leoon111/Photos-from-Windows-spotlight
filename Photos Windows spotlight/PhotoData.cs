@@ -9,7 +9,7 @@ namespace Photos_Windows_spotlight
     /// <summary>
     /// Класс с данными о фотографиях для сохранения в БД.
     /// </summary>
-    class PhotoData
+    public class PhotoData
     {
 
         #region Public constructors

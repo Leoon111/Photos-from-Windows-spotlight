@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 
 namespace Photos_Windows_spotlight
 {
-    class Configuration
+    public class Configuration
     {
         public string PathFiles { get; set; }
 

@@ -26,16 +26,21 @@
                     Margin="425,5,273,0" 
                     VerticalAlignment="Top" Height="23" Grid.Row="1" 
                     Click="ButtonPathToDirectory_Click"/>
-            
-            <TextBlock 
-                   TextWrapping="Wrap"
+
+            <TextBox
+                TextWrapping="Wrap"
                    Name="OutputForWin"
                    HorizontalAlignment="Left" 
                    Height="266" 
                    Margin="10,10,0,0" 
                    VerticalAlignment="Top" 
-                   Width="752" Grid.Row="2" Background="White"/>
-            
+                   Width="752" Grid.Row="2" Background="White" 
+                ScrollViewer.CanContentScroll="True" 
+                UseLayoutRounding="True" 
+                VerticalScrollBarVisibility="Auto" 
+                IsReadOnly="True" 
+                />
+
             <Button Content="Найти новые изображения"
                     Name="FindNewImagesButton"
                     HorizontalAlignment="Left" 

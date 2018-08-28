@@ -72,7 +72,7 @@ namespace Photos_Windows_spotlight
                     @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets"
                                              );
 
-            SetTextOutputForWin($"GetFolderPath: {photoFilesPath}");
+            //SetTextOutputForWin($"GetFolderPath: {photoFilesPath}");
 
             /// получение списка файлов в директории.
             var allPhotoFiles = new DirectoryInfo(photoFilesPath).GetFiles().ToList();
@@ -115,7 +115,8 @@ namespace Photos_Windows_spotlight
         /// <returns></returns>
         public bool SetTextOutputForWin(string setText)
         {
-            _mainWindow.OutputForWin.Text += $"\n{setText}";
+            _mainWindow.OutputForWin.Text = $"{setText}\n" +
+                $"\n{_mainWindow.OutputForWin.Text}";
             // todo добавить проверку выведения текста, здесь за этим возвращаемое значение
             return true;
         }
@@ -125,16 +126,16 @@ namespace Photos_Windows_spotlight
             return true;
         }
 
-        public void SaveMethod(List<string> pathGoodPhotos, FolderBrowserDialog folderBrowserDialog)
+        public void SaveMethod(List<string> pathGoodPhotos, string pathSaveImages)
         {
             int k = 0; // переменная для имени файла (временное значение)
 
             /// Проверяем фотото на наличие копий, уже имеющихся в папке назначения.
-            CheckingPhotosForCopies(ref pathGoodPhotos, folderBrowserDialog);
+            CheckingPhotosForCopies(ref pathGoodPhotos, pathSaveImages);
 
             if (pathGoodPhotos.Count == 0)
             {
-                SetTextOutputForWin("Нет не одной новой картинки.\n");
+                SetTextOutputForWin("Все найденные изображения уже есть в выбранной папке.");
                 return;
             }
 
@@ -142,7 +143,7 @@ namespace Photos_Windows_spotlight
             {
                 var q = File.GetCreationTime(pathGoodPhoto).ToShortDateString();
                 var newPath = Path.Combine(
-                    folderBrowserDialog.SelectedPath,
+                    pathSaveImages,
                     String.Concat(
                         "Photo_",
                         File.GetCreationTime(pathGoodPhoto).ToString().Replace(':', '-').Replace(' ', '_'),
@@ -160,15 +161,17 @@ namespace Photos_Windows_spotlight
         /// </summary>
         /// <param name="pathGoodPhotos">Коллекция адресов из одной дирректории</param>
         /// <param name="folderBrowserDialog">Выбранная папка для копирования в нее картинок</param>
-        private static void CheckingPhotosForCopies(ref List<string> pathGoodPhotosOfImageInTheSystemDirectory, FolderBrowserDialog folderBrowserDialog)
+        private static void CheckingPhotosForCopies(ref List<string> pathGoodPhotosOfImageInTheSystemDirectory, string pathSaveImages)
         {
             /// Получаем список файлов картинок в выбранной директории.
-            var listOfImageFiles = Directory.GetFiles(folderBrowserDialog.SelectedPath, "*.jpg").ToList();
+            var listOfImageFiles = Directory.GetFiles(pathSaveImages, "*.jpg").ToList();
 
             /// Получаем перцептивный хеш картинок в выбранной директории.
 
             /// Коллекция перцептивного хеша картинок в выбранной директории.
             var perceptualHashOfImagesInTheCollection = new List<int[]>();
+
+            // todo здесь мы съедаем 2 гб памати в форыче за счет значимых переменных
 
             /// Перебираем каждый адрес к картинке в выбранной директории.
             foreach (var pathToPicture in listOfImageFiles)
