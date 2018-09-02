@@ -33,7 +33,7 @@ namespace Photos_Windows_spotlight
         static XMLData()
         {
             // todo перенести в файл конфигурации
-            _pathToFileConfiguration = @"../../data.xml";
+            _pathToFileConfiguration = @"data.xml";
         }
 
         public string GetPathSaveImages()
@@ -137,16 +137,6 @@ namespace Photos_Windows_spotlight
                 Indentation = 1,
                 QuoteChar = '\"'
             };
-
-            // формат данных в xml
-            ////<Photos>
-            ////    <PhotoData>
-            ////        <Name> </Name>
-            ////        <Size> </Size>
-            ////        <FileDate> </FileDate>
-            ////        <PreviousName> </PreviousName>
-            ////    </PhotoData>
-            ////</Photos
 
             xmlWriter.WriteStartDocument();
 

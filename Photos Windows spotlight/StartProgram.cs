@@ -174,11 +174,10 @@ namespace Photos_Windows_spotlight
             // todo здесь мы съедаем 2 гб памати в форыче за счет значимых переменных
 
             /// Перебираем каждый адрес к картинке в выбранной директории.
-            foreach (var pathToPicture in listOfImageFiles)
-            {
-                /// Добавляем перцептивный хеш каждой картинки в коллекцию.
-                perceptualHashOfImagesInTheCollection.Add(PerceptualHashOfImage(pathToPicture));
-            }
+
+            /// Добавляем перцептивный хеш каждой картинки в коллекцию.
+            perceptualHashOfImagesInTheCollection.AddRange(new PerceptualHash().PerceptualHashOfImages(listOfImageFiles));
+
 
             /// Адреса картинок, которые уже есть в выбранной дирректории.
             var existingImageURLs = new List<string>();
@@ -187,7 +186,7 @@ namespace Photos_Windows_spotlight
             foreach (var pathGoodPhotoOfImageInTheSystemDirectory in pathGoodPhotosOfImageInTheSystemDirectory)
             {
                 /// Получаем перцептивный хеш одной картинки из системной директории.
-                int[] perceptualHashOfImageInTheSystemDirectory = PerceptualHashOfImage(pathGoodPhotoOfImageInTheSystemDirectory);
+                int[] perceptualHashOfImageInTheSystemDirectory = new PerceptualHash().PerceptualHashOfImage(pathGoodPhotoOfImageInTheSystemDirectory);
 
                 /// Сравниваем хеш каждой картинки из системной дирректории с хешом картинки из выбранной по каждому числу,
                 /// если хеш первой находит аналогию, то адрес этой картинки добавляем в сиписок, который 
@@ -228,52 +227,6 @@ namespace Photos_Windows_spotlight
             }
         }
 
-        /// <summary>
-        /// Метод получения перцептивного хеша из картинки
-        /// </summary>
-        /// <param name="pathToPicture">Адрес расположения картинки</param>
-        /// <returns>Массив перцептивного хеша картинки</returns>
-        private static int[] PerceptualHashOfImage(string pathToPicture)
-        {
-            /// Уменьшаем картинку до размеров 8х8.
-            var miniImage = new Bitmap(Image.FromFile(pathToPicture), 8, 8);
-            //miniImage.Save(item + ".jpg");
-
-            /// массив значений пикселей, равный колличеству пикселей на перцептивном хеше
-            int[] sumOfPixelValues = new int[64];
-            int pixelNumber = 0;
-
-            /// Преобразование уменшенного изображения в градиент серого воспользовавшись формулой перевода RGB в YUV
-            /// Из нее нам потребуется компонента Y, формула конвертации которой выглядит так: Y = 0.299 x R + 0.587 x G + B x 0.114
-            for (int x = 0; x < miniImage.Width; x++)
-            {
-                for (int y = 0; y < miniImage.Height; y++)
-                {
-                    Color bitmapColor = miniImage.GetPixel(x, y);
-                    int colorGray = (int)(bitmapColor.R * 0.299 +
-                    bitmapColor.G * 0.587 + bitmapColor.B * 0.114);
-                    miniImage.SetPixel(x, y, Color.FromArgb(colorGray, colorGray, colorGray));
-                    sumOfPixelValues[pixelNumber++] = colorGray;
-                }
-            }
-
-            /// Вычислите среднее значение для всех 64 пикселей уменьшенного изображения
-            var averageSumOfPixelValues = sumOfPixelValues.AsQueryable().Average();
-
-            /// Заменяем каждое знанеие цвета пикселя на 1 или 0 в зависимости от того, больше оно среднего значения или меньше
-            for (int i = 0; i < sumOfPixelValues.Length; i++)
-            {
-                if (sumOfPixelValues[i] >= averageSumOfPixelValues)
-                {
-                    sumOfPixelValues[i] = 1;
-                }
-                else
-                {
-                    sumOfPixelValues[i] = 0;
-                }
-            }
-
-            return sumOfPixelValues;
-        }
+        
     }
 }

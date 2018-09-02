@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Photos_Windows_spotlight"
         mc:Ignorable="d"
-        Title="Фото с заставки Windows" Height="450" Width="800">
+        Title="Фото с заставки Windows. версия 0.5." Height="450" Width="800">
     <Grid Background="#FFF5F5F4">
         <Grid HorizontalAlignment="Left" Height="399" Margin="10,10,0,0" VerticalAlignment="Top" Width="772">
             <Grid.RowDefinitions>
@@ -56,12 +56,12 @@
                     Grid.Row="3" 
                     VerticalAlignment="Top" 
                     Width="141" Height="20" Click="SaveImagesButton_Click"/>
-            <Button Content="Button" 
+            <Button Content="Выход" 
                     HorizontalAlignment="Left" 
                     Margin="680,20,0,0" 
                     Grid.Row="3" 
                     VerticalAlignment="Top" 
-                    Width="75" Height="20"/>
+                    Width="75" Height="20" Click="Button_Click"/>
 
         </Grid>
 

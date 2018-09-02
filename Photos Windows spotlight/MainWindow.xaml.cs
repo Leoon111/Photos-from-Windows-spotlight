@@ -124,6 +124,11 @@ namespace Photos_Windows_spotlight
         {
             return _goodPhotosCollectionsPath != null && _goodPhotosCollectionsPath.Count > 0 && _pathSaveImages != null;
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
     }
 }
 
