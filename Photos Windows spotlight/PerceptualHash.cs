@@ -39,16 +39,16 @@ namespace Photos_Windows_spotlight
         public int[] PerceptualHashOfImage(string pathToPicture)
         {
             
-            /// Уменьшаем картинку до размеров 8х8.
+            // Уменьшаем картинку до размеров 8х8.
             miniImage = new Bitmap(Image.FromFile(pathToPicture), 8, 8);
             //miniImage.Save(item + ".jpg");
 
-            /// массив значений пикселей, равный колличеству пикселей на перцептивном хеше
+            // массив значений пикселей, равный колличеству пикселей на перцептивном хеше
             sumOfPixelValues = new int[64];
             int pixelNumber = 0;
 
-            /// Преобразование уменшенного изображения в градиент серого воспользовавшись формулой перевода RGB в YUV
-            /// Из нее нам потребуется компонента Y, формула конвертации которой выглядит так: Y = 0.299 x R + 0.587 x G + B x 0.114
+            // Преобразование уменшенного изображения в градиент серого воспользовавшись формулой перевода RGB в YUV
+            // Из нее нам потребуется компонента Y, формула конвертации которой выглядит так: Y = 0.299 x R + 0.587 x G + B x 0.114
             for (int x = 0; x < miniImage.Width; x++)
             {
                 for (int y = 0; y < miniImage.Height; y++)
@@ -61,10 +61,10 @@ namespace Photos_Windows_spotlight
                 }
             }
 
-            /// Вычислите среднее значение для всех 64 пикселей уменьшенного изображения
+            // Вычислите среднее значение для всех 64 пикселей уменьшенного изображения
             var averageSumOfPixelValues = sumOfPixelValues.AsQueryable().Average();
 
-            /// Заменяем каждое знанеие цвета пикселя на 1 или 0 в зависимости от того, больше оно среднего значения или меньше
+            // Заменяем каждое знанеие цвета пикселя на 1 или 0 в зависимости от того, больше оно среднего значения или меньше
             for (int i = 0; i < sumOfPixelValues.Length; i++)
             {
                 if (sumOfPixelValues[i] >= averageSumOfPixelValues) sumOfPixelValues[i] = 1;

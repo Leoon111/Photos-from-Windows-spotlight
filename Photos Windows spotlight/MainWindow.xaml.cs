@@ -56,8 +56,8 @@ namespace Photos_Windows_spotlight
             _folderBrowserDialog.Description = "Выберите папку, куда будут сохраняться картинки";
             /// Тестовая папка на моем компе, проверяю, если ее нет, то открываем Мой Компьютер (если не мой компьютер)
             _folderBrowserDialog.SelectedPath =
-                Directory.Exists(@"E:\OneDrive\Новые фотографии\1\test\1\")
-                ? @"E:\OneDrive\Новые фотографии\1\test\1\"
+                Directory.Exists(@"D:\OneDrive\Новые фотографии\1\test\1\")
+                ? @"D:\OneDrive\Новые фотографии\1\test\1\"
                 : Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
 
             /// метод сохранения
