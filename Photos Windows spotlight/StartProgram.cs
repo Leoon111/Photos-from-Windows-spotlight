@@ -15,11 +15,18 @@ namespace Photos_Windows_spotlight
         private MainWindow _mainWindow;
         private XMLData _xmlData;
         private Configuration _configuration;
-
+        private readonly string _pathToPicturesLocal;
+        //private ImagesInfo _ImagesInfo;
         public StartProgram()
         {
             _xmlData = new XMLData();
-            // ? проверяем, если в настройках есть "Запускать проверку в фоне при старет", то старуем
+            // Запускать проверку в фоне при старет
+
+
+            // путь к файлу где в Виндовс находятся картинки для заставки
+            _pathToPicturesLocal = @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets";
+
+            //_ImagesInfo = new ImagesInfo();
         }
 
         /// <summary>
@@ -65,32 +72,31 @@ namespace Photos_Windows_spotlight
             return _xmlData;
         }
 
+        /// <summary>
+        /// Поиск картинок в системной папке для заставки Виндовс
+        /// </summary>
+        /// <returns></returns>
         public List<string> SearchFilesInWindowsFolder()
         {
-            var photoFilesPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets"
-                                             );
+            var photoFullFilesPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), _pathToPicturesLocal);
 
-            //SetTextOutputForWin($"GetFolderPath: {photoFilesPath}");
+            //SetTextOutputForWin($"GetFolderPath: {photoFullFilesPath}");
 
-            // получение списка файлов в директории.
-            var allPhotoFiles = new DirectoryInfo(photoFilesPath).GetFiles().ToList();
-
+            var allFilesToFolder = new DirectoryInfo(photoFullFilesPath).GetFiles().ToList();
 
             // новый массив для выбранных по размеру файлов из следующего перебора
             List<string> pathGoodPhotos = new List<string>();
 
             // перебираем файлы в папке
-            foreach (var item in allPhotoFiles)
+            foreach (var item in allFilesToFolder)
             {
-                // ограничиваем размер файла для того, чтоб не попали ненужные фалы, не картинки
-                // это предыдущее решение(глупое, но простое), переделать на определение картинки
-                if (item.Length > 200000)
+                var isImages = MyImages.IsImage(item.FullName);
+
+                if (isImages)
                 {
                     using (Bitmap bitmap = new Bitmap(item.FullName))
                     {
-
                         // отбираем картинки только с шириной минимум 1900
                         if (bitmap.Width > 1900)
                         //if (item.Length > 1900) // для портретного режима
@@ -98,6 +104,7 @@ namespace Photos_Windows_spotlight
                             pathGoodPhotos.Add(item.FullName);
                         }
                     }
+
                 }
             }
             return pathGoodPhotos;
@@ -227,6 +234,6 @@ namespace Photos_Windows_spotlight
             }
         }
 
-        
+
     }
 }
