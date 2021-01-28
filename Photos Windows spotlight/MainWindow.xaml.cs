@@ -85,25 +85,25 @@ namespace Photos_Windows_spotlight
 
         private void FindNewImagesButton_Click(object sender, RoutedEventArgs e)
         {
-            /// переменная для вывода дат найденных картинок
-            var DateOfTheImagesFound = new List<DateTime>();
+            // переменная для вывода дат найденных картинок
+            var dateOfTheImagesFound = new List<DateTime>();
 
             _goodPhotosCollectionsPath = _startProgram.SearchFilesInWindowsFolder();
 
-            /// Перебираем адреса найденных картинок, создавая колекцию дат картинок для информации.
+            // Перебираем адреса найденных картинок, создавая колекцию дат картинок для информации.
             foreach (var pathGoodPhoto in _goodPhotosCollectionsPath)
             {
-                DateOfTheImagesFound.Add(File.GetCreationTime(pathGoodPhoto));
+                dateOfTheImagesFound.Add(File.GetCreationTime(pathGoodPhoto));
             }
 
-            /// Сортируем коллекцию по умолчанию
-            DateOfTheImagesFound.Sort();
+            // Сортируем коллекцию по умолчанию
+            dateOfTheImagesFound.Sort();
 
-            /// Формируем сообщение для вывода в окно.
+            // Формируем сообщение для вывода в окно.
             string outputMessage = "Найдены картинки с датами загрузки в Windows:";
-            foreach (var item in DateOfTheImagesFound)
+            foreach (var item in dateOfTheImagesFound)
             {
-                outputMessage += $"\n{DateOfTheImagesFound.IndexOf(item)} - {item.ToString()}";
+                outputMessage += $"\n{dateOfTheImagesFound.IndexOf(item)} - {item.ToString()}";
             }
 
             _startProgram.SetTextOutputForWin(outputMessage);

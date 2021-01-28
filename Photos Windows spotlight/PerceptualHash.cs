@@ -43,6 +43,7 @@ namespace Photos_Windows_spotlight
             miniImage = new Bitmap(Image.FromFile(pathToPicture), 8, 8);
             //miniImage.Save(item + ".jpg");
 
+            // todo вынести переменную
             // массив значений пикселей, равный колличеству пикселей на перцептивном хеше
             sumOfPixelValues = new int[64];
             int pixelNumber = 0;
