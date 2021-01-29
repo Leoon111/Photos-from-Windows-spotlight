@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Windows.Forms;
 using ImagesWindowsSpotlight.lib;
+using ImagesWindowsSpotlight.lib.Models;
 using ImagesWindowsSpotlight.lib.Service;
 
 namespace Photos_Windows_spotlight
@@ -80,6 +81,9 @@ namespace Photos_Windows_spotlight
         /// <returns></returns>
         public List<string> SearchFilesInWindowsFolder()
         {
+            // новый массив для выбранных по размеру файлов из следующего перебора
+            var newImagesList = new List<ImageInfo>();
+
             var photoFullFilesPath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), _pathToPicturesLocal);
 
@@ -87,29 +91,28 @@ namespace Photos_Windows_spotlight
 
             var allFilesToFolder = new DirectoryInfo(photoFullFilesPath).GetFiles().ToList();
 
-            // новый массив для выбранных по размеру файлов из следующего перебора
-            List<string> pathGoodPhotos = new List<string>();
-
             // перебираем файлы в папке
             foreach (var item in allFilesToFolder)
             {
-                var isImages = _imageService.IsImage(item.FullName);
-
-                if (isImages)
+                if (_imageService.IsImage(item.FullName))
                 {
-                    using (Bitmap bitmap = new Bitmap(item.FullName))
-                    {
-                        // отбираем картинки только с шириной минимум 1900
-                        if (bitmap.Width > 1900)
-                        //if (item.Length > 1900) // для портретного режима
-                        {
-                            pathGoodPhotos.Add(item.FullName);
-                        }
-                    }
+                    //using (Bitmap bitmap = new Bitmap(item.FullName))
+                    //{
+                    //}
 
+                    var name = Path.ChangeExtension(item.Name, ".jpg");
+
+                    var image = new ImageInfo
+                    {
+                        Name = Path.ChangeExtension(item.Name, ".jpg"),
+                        DateOfCreation = item.CreationTime,
+                        Resolution = Image.FromFile(item.FullName).Size,
+                    };
+
+                    newImagesList.Add(image);
                 }
             }
-            return pathGoodPhotos;
+            return null;
         }
 
         private void XmlConafigurationFile()
