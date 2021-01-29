@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 using System.Drawing;
 using System.Windows.Forms;
+using ImagesWindowsSpotlight.lib;
+using ImagesWindowsSpotlight.lib.Service;
 
 namespace Photos_Windows_spotlight
 {
@@ -16,7 +18,7 @@ namespace Photos_Windows_spotlight
         private XMLData _xmlData;
         private Configuration _configuration;
         private readonly string _pathToPicturesLocal;
-        //private ImagesInfo _ImagesInfo;
+        private ImageService _imageService;
         public StartProgram()
         {
             _xmlData = new XMLData();
@@ -26,7 +28,7 @@ namespace Photos_Windows_spotlight
             // путь к файлу где в Виндовс находятся картинки для заставки
             _pathToPicturesLocal = @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets";
 
-            //_ImagesInfo = new ImagesInfo();
+            _imageService = new ImageService();
         }
 
         /// <summary>
@@ -91,7 +93,7 @@ namespace Photos_Windows_spotlight
             // перебираем файлы в папке
             foreach (var item in allFilesToFolder)
             {
-                var isImages = MyImages.IsImage(item.FullName);
+                var isImages = _imageService.IsImage(item.FullName);
 
                 if (isImages)
                 {
