@@ -1,24 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Photos_Windows_spotlight
+namespace ImagesWindowsSpotlight.lib.Service
 {
-    public class MyImages
+    public class ImageCheck
     {
-
-        public static bool IsImage(string fileName)
-        {
-            var isImg = HasJpegHeader(fileName);
-
-
-            return isImg;
-        }
-
-        static bool HasJpegHeader(string filename)
+        /// <summary>
+        /// проверка, является ли файл форматом jpeg
+        /// </summary>
+        /// <param name="filename">полный путь к файлу</param>
+        /// <returns></returns>
+        public static bool HasJpegHeader(string filename)
         {
             using (BinaryReader br = new BinaryReader(File.Open(filename, FileMode.Open, FileAccess.Read)))
             {
