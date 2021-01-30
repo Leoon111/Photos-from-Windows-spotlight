@@ -74,6 +74,7 @@
     </ApplicationDefinition>
     <Compile Include="Configuration.cs" />
     <Compile Include="PerceptualHash.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="XMLData.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -134,5 +135,6 @@
       <Name>ImagesWindowsSpotlight.lib</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
