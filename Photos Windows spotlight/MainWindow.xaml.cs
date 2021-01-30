@@ -88,7 +88,7 @@ namespace Photos_Windows_spotlight
             // переменная для вывода дат найденных картинок
             var dateOfTheImagesFound = new List<DateTime>();
 
-            _goodPhotosCollectionsPath = _startProgram.SearchFilesInWindowsFolder();
+            //_goodPhotosCollectionsPath = _startProgram.SearchFilesInWindowsFolder();
 
             // Перебираем адреса найденных картинок, создавая колекцию дат картинок для информации.
             foreach (var pathGoodPhoto in _goodPhotosCollectionsPath)

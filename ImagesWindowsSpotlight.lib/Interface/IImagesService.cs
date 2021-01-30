@@ -42,7 +42,7 @@ namespace ImagesWindowsSpotlight.lib
         /// </summary>
         /// <param name="pathImagesList">коллекция адресов изображений на диске</param>
         /// <returns>коллекция перцептуальных хешей</returns>
-        List<byte[]> getPerceptualHashOfImagesList(List<string> pathImagesList);
+        List<byte[]> GetPerceptualHashOfImagesList(List<string> pathImagesList);
 
         /// <summary>
         /// Асинхронное сохранение изображений на диск
