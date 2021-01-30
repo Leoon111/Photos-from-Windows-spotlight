@@ -75,45 +75,7 @@ namespace Photos_Windows_spotlight
             return _xmlData;
         }
 
-        /// <summary>
-        /// Поиск картинок в системной папке для заставки Виндовс
-        /// </summary>
-        /// <returns></returns>
-        public List<string> SearchFilesInWindowsFolder()
-        {
-            // новый массив для выбранных по размеру файлов из следующего перебора
-            var newImagesList = new List<ImageInfo>();
-
-            var photoFullFilesPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), _pathToPicturesLocal);
-
-            //SetTextOutputForWin($"GetFolderPath: {photoFullFilesPath}");
-
-            var allFilesToFolder = new DirectoryInfo(photoFullFilesPath).GetFiles().ToList();
-
-            // перебираем файлы в папке
-            foreach (var item in allFilesToFolder)
-            {
-                if (_imageService.IsImage(item.FullName))
-                {
-                    //using (Bitmap bitmap = new Bitmap(item.FullName))
-                    //{
-                    //}
-
-                    var name = Path.ChangeExtension(item.Name, ".jpg");
-
-                    var image = new ImageInfo
-                    {
-                        Name = Path.ChangeExtension(item.Name, ".jpg"),
-                        DateOfCreation = item.CreationTime,
-                        Resolution = Image.FromFile(item.FullName).Size,
-                    };
-
-                    newImagesList.Add(image);
-                }
-            }
-            return null;
-        }
+        
 
         private void XmlConafigurationFile()
         {
