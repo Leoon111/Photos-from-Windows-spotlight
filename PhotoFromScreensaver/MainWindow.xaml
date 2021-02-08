@@ -43,10 +43,20 @@
                 IsReadOnly="True" 
                 Text="{Binding OutputForWin}"
                 />
+             
+            
 
             <Button Content="Найти новые изображения"
                     Name="FindNewImagesButton"
-                    Command="{Binding SearchImagesInFolder}"
+                    Command="{Binding SearchImagesInFolderCommand}"
+                    HorizontalAlignment="Left" 
+                    Margin="155,20,0,0" 
+                    Grid.Row="3" 
+                    VerticalAlignment="Top" 
+                    Width="158" Height="20" />
+            <Button Content="Сравнение с имеющимися"
+                    Name=""
+                    
                     HorizontalAlignment="Left" 
                     Margin="335,20,0,0" 
                     Grid.Row="3" 
