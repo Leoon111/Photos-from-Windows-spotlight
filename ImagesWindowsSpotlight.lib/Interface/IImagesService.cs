@@ -32,17 +32,17 @@ namespace ImagesWindowsSpotlight.lib
         bool ImagesCompare(string filePath_1, string filePath_2);
 
         /// <summary>
-        /// Получение перцептуального хеша изображения
+        /// Получение перцептивного хеша изображения
         /// </summary>
         /// <param name="imagesPath">путь к изображению</param>
-        /// <returns>перцептуальный хеш изображенийя</returns>
+        /// <returns>перцептивный хеш изображения</returns>
         byte[] GetPerceptualHashOfImage(string imagesPath);
 
         /// <summary>
-        /// Получение перцептуального хеша коллекции изображений
+        /// Получение перцептивного хеша коллекции изображений
         /// </summary>
         /// <param name="pathImagesList">коллекция адресов изображений на диске</param>
-        /// <returns>коллекция перцептуальных хешей</returns>
+        /// <returns>коллекция перцептивных хешей</returns>
         List<byte[]> GetPerceptualHashOfImagesList(List<string> pathImagesList);
 
         /// <summary>
