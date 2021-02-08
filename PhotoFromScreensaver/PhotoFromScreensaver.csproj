@@ -20,6 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ImagesWindowsSpotlight.lib\ImagesWindowsSpotlight.lib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Data\data.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
