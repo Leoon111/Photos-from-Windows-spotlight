@@ -41,10 +41,12 @@
                 UseLayoutRounding="True" 
                 VerticalScrollBarVisibility="Auto" 
                 IsReadOnly="True" 
+                Text="{Binding OutputForWin}"
                 />
 
             <Button Content="Найти новые изображения"
                     Name="FindNewImagesButton"
+                    Command="{Binding SearchImagesInFolder}"
                     HorizontalAlignment="Left" 
                     Margin="335,20,0,0" 
                     Grid.Row="3" 

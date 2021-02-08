@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Windows;
+using ImagesWindowsSpotlight.lib;
+using ImagesWindowsSpotlight.lib.Service;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PhotoFromScreensaver.ViewModels;
@@ -23,6 +25,7 @@ namespace PhotoFromScreensaver
         private static void ConfigureServices(HostBuilderContext host, IServiceCollection services)
         {
             services.AddSingleton<MyWindowsViewModel>();
+            services.AddTransient<IImagesService, ImageService>();
         }
     }
 }
