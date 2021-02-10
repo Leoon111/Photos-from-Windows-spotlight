@@ -34,6 +34,7 @@ namespace ImagesWindowsSpotlight.lib.Service
                         Name = Path.ChangeExtension(item.Name, ".jpg"),
                         DateOfCreation = item.CreationTime,
                         Resolution = Image.FromFile(item.FullName).Size,
+                        ImageData = new Bitmap(item.FullName),
                     };
                     newImagesList.Add(image);
                 }
