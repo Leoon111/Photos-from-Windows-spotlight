@@ -9,10 +9,10 @@ namespace ImagesWindowsSpotlight.lib.Models
         public string Name {get; set; }
 
         /// <summary>Разрешение изображения</summary>
-        public Size Resolution { get; set; }
+        public ResolutionImage Resolution { get; set; }
 
         /// <summary>Файл изображения</summary>
-        public Bitmap ImageData { get; set; }
+        public byte[] ImageData { get; set; }
 
         /// <summary>Дата создания</summary>
         public DateTime DateOfCreation { get; set; }

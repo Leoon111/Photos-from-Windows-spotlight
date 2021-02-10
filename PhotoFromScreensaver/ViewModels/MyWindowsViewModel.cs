@@ -47,7 +47,7 @@ namespace PhotoFromScreensaver.ViewModels
                 OutputForWin = "Найдены изображения:";
                 foreach (var image in _newImagesList)
                 {
-                    OutputForWin = String.Concat(image.Name, ", ", image.DateOfCreation, ", ", image.Resolution);
+                    OutputForWin = String.Concat(image.Name, ", ", image.DateOfCreation);
                 }
             }
             else
