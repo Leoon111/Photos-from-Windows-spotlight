@@ -18,6 +18,7 @@ namespace PhotoFromScreensaver.ViewModels
         private string _pathToPicturesLocal =
             @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets";
         private string _Title = "Фото с заставки Windows. версия 0.6";
+        /// <summary>Коллекция полученных изображений</summary>
         private List<ImageInfo> _newImagesList;
 
         public MyWindowsViewModel(IImagesService imagesService)
@@ -54,6 +55,29 @@ namespace PhotoFromScreensaver.ViewModels
         }
 
         #endregion  
+
+        #region Command ComparisonOfNewWithCurrent - сравнение найденных с имеющимися
+
+        /// <summary>Сравнение найденных картинок с имеющимися</summary>
+        private ICommand _ComparisonOfNewWithCurrentCommand;
+        /// <summary>Сравнение найденных картинок с имеющимися</summary>
+        public ICommand ComparisonOfNewWithCurrentCommand => _ComparisonOfNewWithCurrentCommand
+            ??= new LambdaCommand(OnComparisonOfNewWithCurrentExecuted, CanComparisonOfNewWithCurrentExecute);
+        /// <summary>Проверка возможности выполнения - Сравнение картинок</summary>
+        private bool CanComparisonOfNewWithCurrentExecute(object p) => true;
+        /// <summary>Логика выполнения - Сравнение картинок</summary>
+        private void OnComparisonOfNewWithCurrentExecuted(object p)
+        {
+           // получить коллекцию перцептивных хешей полученных изображений
+
+           // получить коллекцию перцептивных хешей имеющихся в папке
+
+           // сравнить между собой
+
+           // подготовить список изображений, которые новые без совпадений
+        }
+
+        #endregion
 
         #endregion
 
