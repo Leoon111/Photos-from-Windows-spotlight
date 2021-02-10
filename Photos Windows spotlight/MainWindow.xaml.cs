@@ -14,6 +14,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ImagesWindowsSpotlight.lib.Models;
+using ImagesWindowsSpotlight.lib.Service;
 
 namespace Photos_Windows_spotlight
 {
@@ -28,7 +30,7 @@ namespace Photos_Windows_spotlight
 
         private StartProgram _startProgram;
 
-        private List<string> _goodPhotosCollectionsPath;
+        private List<ImageInfo> _goodPhotosCollectionsPath;
 
         private XMLData _xMLData;
 
@@ -89,22 +91,25 @@ namespace Photos_Windows_spotlight
             var dateOfTheImagesFound = new List<DateTime>();
 
             //_goodPhotosCollectionsPath = _startProgram.SearchFilesInWindowsFolder();
+            _goodPhotosCollectionsPath =
+                new ImageService().SearchImagesInFolder(
+                    @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets");
 
             // Перебираем адреса найденных картинок, создавая колекцию дат картинок для информации.
-            foreach (var pathGoodPhoto in _goodPhotosCollectionsPath)
-            {
-                dateOfTheImagesFound.Add(File.GetCreationTime(pathGoodPhoto));
-            }
+            //foreach (var pathGoodPhoto in _goodPhotosCollectionsPath)
+            //{
+            //    dateOfTheImagesFound.Add(File.GetCreationTime(pathGoodPhoto));
+            //}
 
             // Сортируем коллекцию по умолчанию
-            dateOfTheImagesFound.Sort();
+            //dateOfTheImagesFound.Sort();
 
             // Формируем сообщение для вывода в окно.
             string outputMessage = "Найдены картинки с датами загрузки в Windows:";
-            foreach (var item in dateOfTheImagesFound)
-            {
-                outputMessage += $"\n{dateOfTheImagesFound.IndexOf(item)} - {item.ToString()}";
-            }
+            //foreach (var item in dateOfTheImagesFound)
+            //{
+            //    outputMessage += $"\n{dateOfTheImagesFound.IndexOf(item)} - {item.ToString()}";
+            //}
 
             _startProgram.SetTextOutputForWin(outputMessage);
             SaveImagesButton.IsEnabled = ValidateVisibleSaveButton();
@@ -113,7 +118,7 @@ namespace Photos_Windows_spotlight
         private void SaveImagesButton_Click(object sender, RoutedEventArgs e)
         {
             /// скопировать и переименовать файлы
-            _startProgram.SaveMethod(_goodPhotosCollectionsPath, _pathSaveImages);
+            //_startProgram.SaveMethod(_goodPhotosCollectionsPath, _pathSaveImages);
         }
 
         /// <summary>

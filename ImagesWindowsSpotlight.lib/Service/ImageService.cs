@@ -28,20 +28,37 @@ namespace ImagesWindowsSpotlight.lib.Service
             {
                 if (IsImage(item.FullName))
                 {
-                    var name = Path.ChangeExtension(item.Name, ".jpg");
+                    var imageDate = File.ReadAllBytes(item.FullName);
+                    Size resolution;
+                    using (var ms = new MemoryStream())
+                    {
+                        ms.Write(imageDate, 0, imageDate.Length);
+                        resolution = Image.FromStream(ms).Size;
+                    }
+
                     var image = new ImageInfo
                     {
                         Name = Path.ChangeExtension(item.Name, ".jpg"),
                         DateOfCreation = item.CreationTime,
-                        Resolution = Image.FromFile(item.FullName).Size,
-                        ImageData = new Bitmap(item.FullName),
+                        Resolution = new ResolutionImage
+                        {
+                            Width = resolution.Width,
+                            Height = resolution.Height
+                        },
+                        ImageData = imageDate,
                     };
                     newImagesList.Add(image);
                 }
             }
+            
             return newImagesList;
         }
 
+        /// <summary>
+        /// Определение, является ли файл изображением
+        /// </summary>
+        /// <param name="filePath">полный путь к файлу</param>
+        /// <returns>изображение ли</returns>
         public bool IsImage(string filePath)
         {
             // на данный момент проверка только на jpeg, т.к. другие не требуются
