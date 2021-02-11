@@ -3,6 +3,7 @@ using System.Drawing;
 
 namespace ImagesWindowsSpotlight.lib.Models
 {
+    ///<summary>Вся нужная информация о изображении и его данные</summary>
     public class ImageInfo
     {
         /// <summary>Имя изображения</summary>

@@ -10,6 +10,17 @@ namespace ImagesWindowsSpotlight.lib.Service
 {
     public class ImageService : IImagesService
     {
+        // массив значений пикселей, равный колличеству пикселей на перцептивном хеше
+        private int[] _sumOfPixelValues;
+        private Bitmap _miniImage;
+        //private int _pixelNumber;
+        private Color _bitmapColor;
+
+        public ImageService()
+        {
+            _sumOfPixelValues = new int[64];
+        }
+
         /// <summary>
         /// Поиск изображений в выбранной папке
         /// </summary>
@@ -28,6 +39,7 @@ namespace ImagesWindowsSpotlight.lib.Service
             {
                 if (IsImage(item.FullName))
                 {
+                    // таким способом я отвязываю изображение от ссылки, на данный момент не знаю другого
                     var imageDate = File.ReadAllBytes(item.FullName);
                     Size resolution;
                     using (var ms = new MemoryStream())
@@ -77,12 +89,53 @@ namespace ImagesWindowsSpotlight.lib.Service
 
         public byte[] GetPerceptualHashOfImage(string imagesPath)
         {
-            throw new NotImplementedException();
+            // Уменьшаем картинку до размеров 8х8.
+            _miniImage = new Bitmap(Image.FromFile(imagesPath), 8, 8);
+            
+            int _pixelNumber = 0;
+
+            // Преобразование уменьшенного изображения в градиент серого воспользовавшись формулой перевода RGB в YUV
+            // Из нее нам потребуется компонента Y, формула конвертации которой выглядит так: Y = 0.299 x R + 0.587 x G + B x 0.114
+            for (int x = 0; x < _miniImage.Width; x++)
+            {
+                for (int y = 0; y < _miniImage.Height; y++)
+                {
+                    _bitmapColor = _miniImage.GetPixel(x, y);
+                    int colorGray = (int)(_bitmapColor.R * 0.299 +
+                                          _bitmapColor.G * 0.587 + _bitmapColor.B * 0.114);
+                    _miniImage.SetPixel(x, y, Color.FromArgb(colorGray, colorGray, colorGray));
+                    _sumOfPixelValues[_pixelNumber++] = colorGray;
+                }
+            }
+
+            // Вычислите среднее значение для всех 64 пикселей уменьшенного изображения
+            var averageSumOfPixelValues = _sumOfPixelValues.AsQueryable().Average();
+            var pHash = new byte[64];
+            // Заменяем каждое значение цвета пикселя на 1 или 0 в зависимости от того, больше оно среднего значения или меньше
+            for (int i = 0; i < _sumOfPixelValues.Length; i++)
+            {
+                if (_sumOfPixelValues[i] >= averageSumOfPixelValues) pHash[i] = 1;
+                else pHash[i] = 0;
+            }
+            return pHash;
         }
 
-        public List<byte[]> GetPerceptualHashOfImagesList(List<string> pathImagesList)
+        public List<PHashAndNames> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList)
         {
-            throw new NotImplementedException();
+            var pHashAndNames = new List<PHashAndNames>();
+            foreach (var images in pathImagesList)
+            {
+                if (IsImage(images.FullName))
+                {
+                    pHashAndNames.Add(
+                        new PHashAndNames
+                        {
+                            PerceptualHash = GetPerceptualHashOfImage(images.FullName),
+                            Name = images.Name,
+                        });
+                }
+            }
+            return pHashAndNames;
         }
 
         public async Task SaveImagesToAsync(List<string> imagePaths, string saveFolder)

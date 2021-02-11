@@ -20,7 +20,8 @@
                      Height="23" 
                      Margin="10,5,0,0" 
                      TextWrapping="Wrap" 
-                     Name="TextBoxPathToDirectory" 
+                     Name="TextBoxPathToDirectory"
+                     Text="{Binding PathFolderMyImages}"
                      VerticalAlignment="Top" 
                      Width="389" Grid.Row="1"/>
             <Button Content="Обзор"
@@ -55,8 +56,8 @@
                     VerticalAlignment="Top" 
                     Width="158" Height="20" />
             <Button Content="Сравнить с имеющимися"
+                    Command="{Binding ComparisonOfNewWithCurrentCommand}"
                     
-                    IsEnabled="False"
                     HorizontalAlignment="Left" 
                     Margin="335,20,0,0" 
                     Grid.Row="3" 
