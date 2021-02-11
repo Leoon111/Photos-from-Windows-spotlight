@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,8 @@ namespace PhotoFromScreensaver.ViewModels
         private string _Title = "Фото с заставки Windows. версия 0.6";
         /// <summary>Коллекция полученных изображений</summary>
         private List<ImageInfo> _newImagesList;
+
+        private string _pathFolderMyImages = @"D:\OneDrive\Новые фотографии\1\test\1\";
 
         public MyWindowsViewModel(IImagesService imagesService)
         {
@@ -47,7 +50,7 @@ namespace PhotoFromScreensaver.ViewModels
                 OutputForWin = "Найдены изображения:";
                 foreach (var image in _newImagesList)
                 {
-                    OutputForWin = String.Concat(image.Name, ", ", image.DateOfCreation);
+                    OutputForWin = String.Concat(image.Name, ", ", image.DateOfCreation, ", ", image.Resolution.Width, "X", image.Resolution.Height);
                 }
             }
             else
@@ -64,17 +67,29 @@ namespace PhotoFromScreensaver.ViewModels
         public ICommand ComparisonOfNewWithCurrentCommand => _ComparisonOfNewWithCurrentCommand
             ??= new LambdaCommand(OnComparisonOfNewWithCurrentExecuted, CanComparisonOfNewWithCurrentExecute);
         /// <summary>Проверка возможности выполнения - Сравнение картинок</summary>
-        private bool CanComparisonOfNewWithCurrentExecute(object p) => true;
+        private bool CanComparisonOfNewWithCurrentExecute(object p)
+        {
+            var b = _pathFolderMyImages is not null;
+            return b ;
+        }
+
         /// <summary>Логика выполнения - Сравнение картинок</summary>
         private void OnComparisonOfNewWithCurrentExecuted(object p)
         {
-           // получить коллекцию перцептивных хешей полученных изображений
+            var newImagesSelected = new List<ImageInfo>();
+            // получить коллекцию перцептивных хешей полученных изображений
 
-           // получить коллекцию перцептивных хешей имеющихся в папке
+            // получить коллекцию перцептивных хешей имеющихся в папке
 
-           // сравнить между собой
+            var oldImagesPHash = new List<PHashAndNames>();
+            var pathOldImages = new DirectoryInfo(_pathFolderMyImages).GetFiles().ToList();
+            oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
 
-           // подготовить список изображений, которые новые без совпадений
+            // сохранять коллекцию хешей в файл ассоциируя их с именем изображения
+
+            // сравнить между собой
+
+            // подготовить список изображений, которые новые без совпадений
         }
 
         #endregion
@@ -95,6 +110,12 @@ namespace PhotoFromScreensaver.ViewModels
         {
             get => _OutputForWin;
             set => Set(ref _OutputForWin, String.Concat(_OutputForWin, "\n", value));
+        }
+
+        public string PathFolderMyImages
+        {
+            get => _pathFolderMyImages;
+            set => Set(ref _pathToPicturesLocal, value);
         }
 
         #endregion
