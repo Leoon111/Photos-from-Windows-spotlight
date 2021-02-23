@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ using Photos_Windows_spotlight.ViewModels.Base;
 
 namespace PhotoFromScreensaver.ViewModels
 {
-    class MyWindowsViewModel : ViewModel
+    class MyWindowsViewModel : ViewModel, IDataErrorInfo
     {
         private readonly IImagesService _imagesService;
         // путь к файлу где в Виндовс находятся картинки для заставки
@@ -36,11 +37,14 @@ namespace PhotoFromScreensaver.ViewModels
 
         /// <summary>Поиск картинок в системной папке для заставки виндовс</summary>
         private ICommand _SearchImagesInFolderCommand;
+
         /// <summary>Поиск картинок в системной папке для заставки виндовс</summary>
         public ICommand SearchImagesInFolderCommand => _SearchImagesInFolderCommand
             ??= new LambdaCommand(OnSearchImagesInFolderExecuted, CanSearchImagesInFolderExecute);
+
         /// <summary>Проверка возможности выполнения - Поиск картинок</summary>
         private bool CanSearchImagesInFolderExecute(object p) => true;
+
         /// <summary>Логика выполнения - Поиск картинок</summary>
         private void OnSearchImagesInFolderExecuted(object p)
         {
@@ -115,11 +119,36 @@ namespace PhotoFromScreensaver.ViewModels
         public string PathFolderMyImages
         {
             get => _pathFolderMyImages;
-            set => Set(ref _pathToPicturesLocal, value);
+            set
+            {
+                //if (!Directory.Exists(_pathFolderMyImages))
+                //    throw new ArgumentException("Данной папки не существует", nameof(value));
+
+                if (Directory.Exists(_pathFolderMyImages))
+                    Set(ref _pathFolderMyImages, value);
+            }
         }
 
         #endregion
 
 
+        string IDataErrorInfo.Error { get; } = null;
+
+        string IDataErrorInfo.this[string propertyName]
+        {
+            get
+            {
+                switch (propertyName)
+                {
+                    default: return null;
+
+                    case nameof(PathFolderMyImages):
+                        if (!Directory.Exists(_pathFolderMyImages))
+                            return "Данной папки не существует";
+
+                        return null;
+                }
+            }
+        }
     }
 }

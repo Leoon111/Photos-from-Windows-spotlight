@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="{Binding Title}"
         Height="450" Width="800">
-    <Grid Background="#FFF5F5F4">
+    <Grid Background="#FFF5F5F4" Validation.Error="OnFolderPathValidationError">
         <Grid HorizontalAlignment="Left" Height="399" Margin="10,10,0,0" VerticalAlignment="Top" Width="772">
             <Grid.RowDefinitions>
                 <RowDefinition Height="20*"/>
@@ -21,7 +21,7 @@
                      Margin="10,5,0,0" 
                      TextWrapping="Wrap" 
                      Name="TextBoxPathToDirectory"
-                     Text="{Binding PathFolderMyImages}"
+                     Text="{Binding PathFolderMyImages, NotifyOnValidationError=True, ValidatesOnDataErrors=True, ValidatesOnNotifyDataErrors=True, ValidatesOnExceptions=True}"
                      VerticalAlignment="Top" 
                      Width="389" Grid.Row="1"/>
             <Button Content="Обзор"
