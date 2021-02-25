@@ -14,9 +14,6 @@ namespace PhotoFromScreensaver
         public MainWindow()
         {
             InitializeComponent();
-            var a = Environment.CurrentDirectory.Replace(@"Photos-from-Windows-spotlight\PhotoFromScreensaver\bin\Debug\net5.0-windows",
-                @"Photos-from-Windows-spotlight\Tests\ImagesWindowsSpotlight.lib.Tests\Data\A7RNHSMC65E.jpg");
-
         }
 
         private void OnFolderPathValidationError(object? sender, ValidationErrorEventArgs e)
