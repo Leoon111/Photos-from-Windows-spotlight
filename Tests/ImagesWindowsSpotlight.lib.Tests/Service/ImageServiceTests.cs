@@ -12,7 +12,7 @@ namespace ImagesWindowsSpotlight.lib.Service.Tests
             #region Arrange
 
             var imgJpg = Environment.CurrentDirectory
-                .Replace(@"bin\Debug\netcoreapp3.1", @"Data\A7RNHS.jpg");
+                .Replace(@"bin\Debug\netcoreapp3.1", @"Data\GetPerceptualHashOfImage.jpg");
 
             #endregion
 
