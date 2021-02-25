@@ -15,9 +15,9 @@ namespace ImagesWindowsSpotlight.lib.Tests.Service
             // получаем адрес картинки в данных приложения путем получения адреса запускаемого файла и замены части пути на путь к тестовому изображению
             //@"E:\MyApps\Мои приложения\Фото с заставки рабочего стола виндовс\Photos-from-Windows-spotlight\Tests\ImagesWindowsSpotlight.lib.Tests\Data\A7RNHSMC65E.jpg";
             var imgJpg = Environment.CurrentDirectory
-                .Replace(@"bin\Debug\netcoreapp3.1", @"Data\A7RNHSMC65E.jpg");
+                .Replace(@"bin\Debug\netcoreapp3.1", @"Data\HasJpegHeader_jpg.jpg");
             var imgPng = Environment.CurrentDirectory
-                .Replace(@"bin\Debug\netcoreapp3.1", @"Data\net.png");
+                .Replace(@"bin\Debug\netcoreapp3.1", @"Data\HasJpegHeader_notJpg.png");
 
             #endregion
 
