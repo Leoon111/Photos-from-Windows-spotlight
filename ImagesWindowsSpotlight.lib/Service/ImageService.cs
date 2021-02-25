@@ -87,6 +87,11 @@ namespace ImagesWindowsSpotlight.lib.Service
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Получение перцептивного хеша изображения
+        /// </summary>
+        /// <param name="imagesPath">путь к изображению</param>
+        /// <returns>перцептивный хеш изображения</returns>
         public byte[] GetPerceptualHashOfImage(string imagesPath)
         {
             // Уменьшаем картинку до размеров 8х8.
@@ -120,6 +125,11 @@ namespace ImagesWindowsSpotlight.lib.Service
             return pHash;
         }
 
+        /// <summary>
+        /// Получение перцептивного хеша коллекции изображений
+        /// </summary>
+        /// <param name="pathImagesList">коллекция адресов изображений на диске</param>
+        /// <returns>коллекция перцептивных хешей</returns>
         public List<PHashAndNames> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList)
         {
             var pHashAndNames = new List<PHashAndNames>();
@@ -138,6 +148,12 @@ namespace ImagesWindowsSpotlight.lib.Service
             return pHashAndNames;
         }
 
+        /// <summary>
+        /// Асинхронное сохранение изображений на диск
+        /// </summary>
+        /// <param name="imagePaths">коллекция адресов изображений</param>
+        /// <param name="saveFolder">папка для сохранения</param>
+        /// <returns></returns>
         public async Task SaveImagesToAsync(List<string> imagePaths, string saveFolder)
         {
             throw new NotImplementedException();
