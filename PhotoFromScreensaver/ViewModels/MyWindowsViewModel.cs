@@ -4,8 +4,10 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
 using ImagesWindowsSpotlight.lib;
 using ImagesWindowsSpotlight.lib.Models;
 using Photos_Windows_spotlight.Infrastructure.Commands;
@@ -22,6 +24,7 @@ namespace PhotoFromScreensaver.ViewModels
         private string _Title = "Фото с заставки Windows. версия 0.6";
         /// <summary>Коллекция полученных изображений</summary>
         private List<ImageInfo> _newImagesList;
+        private List<PHashAndNames> _oldImagesPHash;
 
         private string _pathFolderMyImages = @"D:\OneDrive\Новые фотографии\1\test\1\";
 
@@ -67,13 +70,15 @@ namespace PhotoFromScreensaver.ViewModels
 
         /// <summary>Сравнение найденных картинок с имеющимися</summary>
         private ICommand _ComparisonOfNewWithCurrentCommand;
+
         /// <summary>Сравнение найденных картинок с имеющимися</summary>
         public ICommand ComparisonOfNewWithCurrentCommand => _ComparisonOfNewWithCurrentCommand
             ??= new LambdaCommand(OnComparisonOfNewWithCurrentExecuted, CanComparisonOfNewWithCurrentExecute);
+
         /// <summary>Проверка возможности выполнения - Сравнение картинок</summary>
         private bool CanComparisonOfNewWithCurrentExecute(object p)
         {
-            var b = _pathFolderMyImages is not null;
+            var b = _pathFolderMyImages is not null && _newImagesList is not null;
             return b ;
         }
 
@@ -85,10 +90,18 @@ namespace PhotoFromScreensaver.ViewModels
 
             // получить коллекцию перцептивных хешей имеющихся в папке
 
-            var oldImagesPHash = new List<PHashAndNames>();
-            var pathOldImages = new DirectoryInfo(_pathFolderMyImages).GetFiles().ToList();
-            oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
 
+            _oldImagesPHash = new List<PHashAndNames>();
+            var pathOldImages = new DirectoryInfo(_pathFolderMyImages).GetFiles().ToList();
+            //oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
+            new Thread(() =>
+            {
+                if (_imagesService != null)
+                    _oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
+                App.Current.Dispatcher.Invoke(() => OutputForWin = "Изображения проанализированы");
+            }){ IsBackground = true }.Start();
+
+            OutputForWin = "Производится анализ имеющихся изображений в выбранной папке";
             // сохранять коллекцию хешей в файл ассоциируя их с именем изображения
 
             // сравнить между собой
