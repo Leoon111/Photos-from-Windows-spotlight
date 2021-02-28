@@ -79,7 +79,7 @@ namespace PhotoFromScreensaver.ViewModels
         private bool CanComparisonOfNewWithCurrentExecute(object p)
         {
             var b = _pathFolderMyImages is not null && _newImagesList is not null;
-            return b ;
+            return b;
         }
 
         /// <summary>Логика выполнения - Сравнение картинок</summary>
@@ -98,8 +98,9 @@ namespace PhotoFromScreensaver.ViewModels
             {
                 if (_imagesService != null)
                     _oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
-                App.Current.Dispatcher.Invoke(() => OutputForWin = "Изображения проанализированы");
-            }){ IsBackground = true }.Start();
+                OutputForWin = "Изображения проанализированы";
+            })
+            { IsBackground = true }.Start();
 
             OutputForWin = "Производится анализ имеющихся изображений в выбранной папке";
             // сохранять коллекцию хешей в файл ассоциируя их с именем изображения
@@ -126,7 +127,14 @@ namespace PhotoFromScreensaver.ViewModels
         public string OutputForWin
         {
             get => _OutputForWin;
-            set => Set(ref _OutputForWin, String.Concat(_OutputForWin, "\n", value));
+            set
+            {
+                if (Dispatcher.CurrentDispatcher.CheckAccess())
+                    Set(ref _OutputForWin, String.Concat(_OutputForWin, "\n", value));
+                else
+                    Dispatcher.CurrentDispatcher.Invoke(() =>
+                        Set(ref _OutputForWin, String.Concat(_OutputForWin, "\n", value)));
+            }
         }
 
         public string PathFolderMyImages
