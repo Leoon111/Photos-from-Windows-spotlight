@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ImagesWindowsSpotlight.lib.Models;
 
@@ -10,15 +12,15 @@ namespace ImagesWindowsSpotlight.lib.Service
 {
     public class ImageService : IImagesService
     {
-        // массив значений пикселей, равный колличеству пикселей на перцептивном хеше
-        private int[] _sumOfPixelValues;
-        private Bitmap _miniImage;
+        // массив значений пикселей, равный количеству пикселей на перцептивном хеше
+        //private int[] _sumOfPixelValues;
+        //private Bitmap _miniImage;
         //private int _pixelNumber;
-        private Color _bitmapColor;
+        //private Color _bitmapColor;
 
         public ImageService()
         {
-            _sumOfPixelValues = new int[64];
+            //_sumOfPixelValues = new int[64];
         }
 
         /// <summary>
@@ -62,7 +64,7 @@ namespace ImagesWindowsSpotlight.lib.Service
                     newImagesList.Add(image);
                 }
             }
-            
+
             return newImagesList;
         }
 
@@ -95,31 +97,32 @@ namespace ImagesWindowsSpotlight.lib.Service
         public byte[] GetPerceptualHashOfImage(string imagesPath)
         {
             // Уменьшаем картинку до размеров 8х8.
-            _miniImage = new Bitmap(Image.FromFile(imagesPath), 8, 8);
-            
-            int _pixelNumber = 0;
+            var miniImage = new Bitmap(Image.FromFile(imagesPath), 8, 8);
 
+            int _pixelNumber = 0;
+            var sumOfPixelValues = new int[64];
             // Преобразование уменьшенного изображения в градиент серого воспользовавшись формулой перевода RGB в YUV
             // Из нее нам потребуется компонента Y, формула конвертации которой выглядит так: Y = 0.299 x R + 0.587 x G + B x 0.114
-            for (int x = 0; x < _miniImage.Width; x++)
+            for (int x = 0; x < miniImage.Width; x++)
             {
-                for (int y = 0; y < _miniImage.Height; y++)
+                for (int y = 0; y < miniImage.Height; y++)
                 {
-                    _bitmapColor = _miniImage.GetPixel(x, y);
-                    int colorGray = (int)(_bitmapColor.R * 0.299 +
-                                          _bitmapColor.G * 0.587 + _bitmapColor.B * 0.114);
-                    _miniImage.SetPixel(x, y, Color.FromArgb(colorGray, colorGray, colorGray));
-                    _sumOfPixelValues[_pixelNumber++] = colorGray;
+                    var bitmapColor = miniImage.GetPixel(x, y);
+                    int colorGray = (int)(bitmapColor.R * 0.299 +
+                                          bitmapColor.G * 0.587 + bitmapColor.B * 0.114);
+                    miniImage.SetPixel(x, y, Color.FromArgb(colorGray, colorGray, colorGray));
+
+                    sumOfPixelValues[_pixelNumber++] = colorGray;
                 }
             }
 
             // Вычислите среднее значение для всех 64 пикселей уменьшенного изображения
-            var averageSumOfPixelValues = _sumOfPixelValues.AsQueryable().Average();
+            var averageSumOfPixelValues = sumOfPixelValues.AsQueryable().Average();
             var pHash = new byte[64];
             // Заменяем каждое значение цвета пикселя на 1 или 0 в зависимости от того, больше оно среднего значения или меньше
-            for (int i = 0; i < _sumOfPixelValues.Length; i++)
+            for (int i = 0; i < sumOfPixelValues.Length; i++)
             {
-                if (_sumOfPixelValues[i] >= averageSumOfPixelValues) pHash[i] = 1;
+                if (sumOfPixelValues[i] >= averageSumOfPixelValues) pHash[i] = 1;
                 else pHash[i] = 0;
             }
             return pHash;
@@ -132,20 +135,32 @@ namespace ImagesWindowsSpotlight.lib.Service
         /// <returns>коллекция перцептивных хешей</returns>
         public List<PHashAndNames> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList)
         {
-            var pHashAndNames = new List<PHashAndNames>();
+            var pHashAndNames = new ConcurrentBag<PHashAndNames>();
+
             foreach (var images in pathImagesList)
             {
-                if (IsImage(images.FullName))
+                ThreadPool.QueueUserWorkItem(o =>
                 {
-                    pHashAndNames.Add(
-                        new PHashAndNames
-                        {
-                            PerceptualHash = GetPerceptualHashOfImage(images.FullName),
-                            Name = images.Name,
-                        });
-                }
+                    if (IsImage(images.FullName))
+                    {
+                        pHashAndNames.Add(
+                            new PHashAndNames
+                            {
+                                PerceptualHash = GetPerceptualHashOfImage(images.FullName),
+                                Name = images.Name,
+                            });
+                    }
+                });
+
             }
-            return pHashAndNames;
+
+            // todo костыль, реализовать по другому
+            while (pHashAndNames.Count != pathImagesList.Count)
+            {
+                Thread.Sleep(100);
+            }
+
+            return pHashAndNames.ToList();
         }
 
         /// <summary>
