@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -95,11 +96,14 @@ namespace PhotoFromScreensaver.ViewModels
             var pathOldImages = new DirectoryInfo(_pathFolderMyImages).GetFiles().ToList();
             //oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
             new Thread(() =>
-            {
-                if (_imagesService != null)
-                    _oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
-                OutputForWin = "Изображения проанализированы";
-            })
+                {
+                    var timer = Stopwatch.StartNew();
+                    if (_imagesService != null)
+                        _oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
+                    timer.Stop();
+                    OutputForWin = $"Изображения проанализированы, потраченное время: {timer.Elapsed.TotalSeconds}," +
+                                   $" количество изображений {_oldImagesPHash.Count}";
+                })
             { IsBackground = true }.Start();
 
             OutputForWin = "Производится анализ имеющихся изображений в выбранной папке";
@@ -124,6 +128,9 @@ namespace PhotoFromScreensaver.ViewModels
 
         private string _OutputForWin = "Старт\n";
 
+        /// <summary>
+        /// Выводит в текст бокс текст событий и не только (временное решение)
+        /// </summary>
         public string OutputForWin
         {
             get => _OutputForWin;
