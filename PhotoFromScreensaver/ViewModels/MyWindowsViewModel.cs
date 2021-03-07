@@ -87,15 +87,15 @@ namespace PhotoFromScreensaver.ViewModels
         private void OnComparisonOfNewWithCurrentExecuted(object p)
         {
             var newImagesSelected = new List<ImageInfo>();
-            // получить коллекцию перцептивных хешей полученных изображений
+            // получить коллекцию перцептивного хеша полученных изображений
 
-            // получить коллекцию перцептивных хешей имеющихся в папке
+            // получить коллекцию перцептивного хеша, имеющихся в папке
 
 
             _oldImagesPHash = new List<PHashAndNames>();
             var pathOldImages = new DirectoryInfo(_pathFolderMyImages).GetFiles().ToList();
             //oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
-            new Thread(() =>
+            Task.Run(() =>
                 {
                     var timer = Stopwatch.StartNew();
                     if (_imagesService != null)
@@ -103,8 +103,7 @@ namespace PhotoFromScreensaver.ViewModels
                     timer.Stop();
                     OutputForWin = $"Изображения проанализированы, потраченное время: {timer.Elapsed.TotalSeconds}," +
                                    $" количество изображений {_oldImagesPHash.Count}";
-                })
-            { IsBackground = true }.Start();
+                });
 
             OutputForWin = "Производится анализ имеющихся изображений в выбранной папке";
             // сохранять коллекцию хешей в файл ассоциируя их с именем изображения

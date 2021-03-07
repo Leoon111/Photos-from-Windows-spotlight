@@ -137,28 +137,42 @@ namespace ImagesWindowsSpotlight.lib.Service
         {
             var pHashAndNames = new ConcurrentBag<PHashAndNames>();
 
-            foreach (var images in pathImagesList)
-            {
-                ThreadPool.QueueUserWorkItem(o =>
-                {
-                    if (IsImage(images.FullName))
-                    {
-                        pHashAndNames.Add(
-                            new PHashAndNames
-                            {
-                                PerceptualHash = GetPerceptualHashOfImage(images.FullName),
-                                Name = images.Name,
-                            });
-                    }
-                });
+            ThreadPool.SetMinThreads(8, 4);
 
-            }
+            //foreach (var images in pathImagesList)
+            //{
+            //    ThreadPool.QueueUserWorkItem(o =>
+            //    {
+            //        if (IsImage(images.FullName))
+            //        {
+            //            pHashAndNames.Add(
+            //                new PHashAndNames
+            //                {
+            //                    PerceptualHash = GetPerceptualHashOfImage(images.FullName),
+            //                    Name = images.Name,
+            //                });
+            //        }
+            //    });
+            //}
 
-            // todo костыль, реализовать по другому
-            while (pHashAndNames.Count != pathImagesList.Count)
-            {
-                Thread.Sleep(100);
-            }
+            //// todo костыль, реализовать по другому
+            //while (pHashAndNames.Count != pathImagesList.Count)
+            //{
+            //    Thread.Sleep(100);
+            //}
+
+            Parallel.ForEach(pathImagesList, new ParallelOptions { MaxDegreeOfParallelism = 3 }, pathImage =>
+              {
+                  if (IsImage(pathImage.FullName))
+                  {
+                      pHashAndNames.Add(
+                          new PHashAndNames
+                          {
+                              PerceptualHash = GetPerceptualHashOfImage(pathImage.FullName),
+                              Name = pathImage.Name,
+                          });
+                  }
+              });
 
             return pHashAndNames.ToList();
         }
