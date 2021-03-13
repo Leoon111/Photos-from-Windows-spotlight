@@ -129,9 +129,9 @@ namespace PhotoFromScreensaver.ViewModels
                 }
                 catch (AggregateException ex)
                 {
-                    OutputForWin = 
-                        ex.InnerException is OperationCanceledException 
-                            ? $"Операция принудительно отмена пользователем {ex.InnerException.Message}" 
+                    OutputForWin =
+                        ex.InnerException is OperationCanceledException
+                            ? $"Операция принудительно отмена пользователем {ex.InnerException.Message}"
                             : $"Обработка выдала несколько исключений {ex.InnerExceptions}";
                 }
                 catch (Exception e)
@@ -181,7 +181,30 @@ namespace PhotoFromScreensaver.ViewModels
             _pHashCancellation?.Cancel();
         }
 
-        #endregion 
+        #endregion
+
+        #region Command ExitingProgram - Выход из приложения
+
+        /// <summary>Выход из приложения</summary>
+        private ICommand _ExitingProgramCommand;
+
+        /// <summary>Выход из приложения</summary>
+        public ICommand ExitingProgramCommand => _ExitingProgramCommand
+            ??= new LambdaCommand(OnExitingProgramExecuted, CanExitingProgramExecute);
+
+        /// <summary>Проверка возможности выполнения - Выход из приложения</summary>
+        private bool CanExitingProgramExecute(object p)
+        {
+            return !_comparisonToken;
+        }
+
+        /// <summary>Логика выполнения - Выход из приложения</summary>
+        private void OnExitingProgramExecuted(object p)
+        {
+            App.Current.MainWindow.Close();
+        }
+
+        #endregion
 
         #endregion
 
