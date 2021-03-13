@@ -10,5 +10,7 @@ namespace ImagesWindowsSpotlight.lib.Models
         public string Name { get; set; }
 
         public byte[] PerceptualHash { get; set; }
+
+        public DateTime DateLastChange { get; set; }
     }
 }

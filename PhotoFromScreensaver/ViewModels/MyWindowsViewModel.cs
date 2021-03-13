@@ -26,13 +26,15 @@ namespace PhotoFromScreensaver.ViewModels
         /// <summary>Коллекция полученных изображений</summary>
         private List<ImageInfo> _newImagesList;
         private List<PHashAndNames> _oldImagesPHash;
-
+        private CancellationTokenSource _pHashCancellation;
         private string _pathFolderMyImages = @"D:\OneDrive\Новые фотографии\1\test\1\";
+        /// <summary>Токен, которой сообщает о процессе вычисления поиска хеша и сравнения с другими картинками</summary> 
+        private bool _comparisonToken = false;
+
 
         public MyWindowsViewModel(IImagesService imagesService)
         {
             _imagesService = imagesService;
-
         }
 
         #region Команды
@@ -47,7 +49,10 @@ namespace PhotoFromScreensaver.ViewModels
             ??= new LambdaCommand(OnSearchImagesInFolderExecuted, CanSearchImagesInFolderExecute);
 
         /// <summary>Проверка возможности выполнения - Поиск картинок</summary>
-        private bool CanSearchImagesInFolderExecute(object p) => true;
+        private bool CanSearchImagesInFolderExecute(object p)
+        {
+            return !_comparisonToken;
+        }
 
         /// <summary>Логика выполнения - Поиск картинок</summary>
         private void OnSearchImagesInFolderExecuted(object p)
@@ -79,41 +84,104 @@ namespace PhotoFromScreensaver.ViewModels
         /// <summary>Проверка возможности выполнения - Сравнение картинок</summary>
         private bool CanComparisonOfNewWithCurrentExecute(object p)
         {
-            var b = _pathFolderMyImages is not null && _newImagesList is not null;
-            return b;
+            bool canCompaison = _pathFolderMyImages is not null && _newImagesList is not null && _comparisonToken == false;
+
+            return canCompaison;
         }
 
         /// <summary>Логика выполнения - Сравнение картинок</summary>
-        private void OnComparisonOfNewWithCurrentExecuted(object p)
+        private async void OnComparisonOfNewWithCurrentExecuted(object p)
         {
-            var newImagesSelected = new List<ImageInfo>();
-            // получить коллекцию перцептивного хеша полученных изображений
+            // todo создать методы из длинного кода
+            try
+            {
+                _comparisonToken = true;
+                var newImagesSelected = new List<ImageInfo>();
+                // получить коллекцию перцептивного хеша полученных изображений
 
-            // получить коллекцию перцептивного хеша, имеющихся в папке
+                // получить коллекцию перцептивного хеша, имеющихся в папке
 
 
-            _oldImagesPHash = new List<PHashAndNames>();
-            var pathOldImages = new DirectoryInfo(_pathFolderMyImages).GetFiles().ToList();
-            //oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
-            Task.Run(() =>
+                _oldImagesPHash = new List<PHashAndNames>();
+                var pathOldImages = new DirectoryInfo(_pathFolderMyImages).GetFiles().ToList();
+                //oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
+
+                OutputForWin = "Производится анализ имеющихся изображений в выбранной папке";
+                try
                 {
-                    var timer = Stopwatch.StartNew();
-                    if (_imagesService != null)
-                        _oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
-                    timer.Stop();
-                    OutputForWin = $"Изображения проанализированы, потраченное время: {timer.Elapsed.TotalSeconds}," +
-                                   $" количество изображений {_oldImagesPHash.Count}";
-                });
+                    _pHashCancellation = new CancellationTokenSource();
+                    var cancellation = _pHashCancellation.Token;
+                    await Task.Run(() =>
+                    {
+                        var timer = Stopwatch.StartNew();
+                        if (_imagesService != null)
+                            _oldImagesPHash =
+                                _imagesService.GetPerceptualHashOfImagesList(pathOldImages, cancellation);
+                        timer.Stop();
+                        OutputForWin =
+                            $"Изображения проанализированы, потраченное время: {timer.Elapsed.TotalSeconds}," +
+                            $" количество изображений {_oldImagesPHash.Count}";
+                    });
+                }
+                catch (OperationCanceledException)
+                {
+                    OutputForWin = $"Операция отменена пользователем";
+                }
+                catch (AggregateException ex)
+                {
+                    OutputForWin = 
+                        ex.InnerException is OperationCanceledException 
+                            ? $"Операция принудительно отмена пользователем {ex.InnerException.Message}" 
+                            : $"Обработка выдала несколько исключений {ex.InnerExceptions}";
+                }
+                catch (Exception e)
+                {
+                    OutputForWin = $"Произошла ошибка нахождения хеша изображения. {e.Message}";
+                }
 
-            OutputForWin = "Производится анализ имеющихся изображений в выбранной папке";
-            // сохранять коллекцию хешей в файл ассоциируя их с именем изображения
 
-            // сравнить между собой
 
-            // подготовить список изображений, которые новые без совпадений
+                // сохранять коллекцию хеша в файл ассоциируя их с именем изображения и записываем дату последнего изменения
+
+                // сравнить между собой
+
+                // подготовить список изображений, которые новые без совпадений
+            }
+
+            catch (Exception e)
+            {
+                OutputForWin = $"Произошла ошибка во время обработки. {e.Message}";
+            }
+            finally
+            {
+                _comparisonToken = false;
+            }
         }
 
         #endregion
+
+        #region Command CancelingOperation - Отмена операции
+
+        /// <summary>Отмена операций</summary>
+        private ICommand _CancelingOperationCommand;
+
+        /// <summary>Отмена операций</summary>
+        public ICommand CancelingOperationCommand => _CancelingOperationCommand
+            ??= new LambdaCommand(OnCancelingOperationExecuted, CanCancelingOperationExecute);
+
+        /// <summary>Проверка возможности выполнения - Отмена операций</summary>
+        private bool CanCancelingOperationExecute(object p)
+        {
+            return _comparisonToken;
+        }
+
+        /// <summary>Логика выполнения - Отмена операций</summary>
+        private void OnCancelingOperationExecuted(object p)
+        {
+            _pHashCancellation?.Cancel();
+        }
+
+        #endregion 
 
         #endregion
 
