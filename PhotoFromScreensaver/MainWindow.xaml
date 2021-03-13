@@ -49,12 +49,10 @@
                 TextWrapping="Wrap"
                 Name="OutputForWin"
                 Background="White" 
-                ScrollViewer.CanContentScroll="True" 
                 UseLayoutRounding="True" 
                 VerticalScrollBarVisibility="Auto" 
                 IsReadOnly="True" 
-                Text="{Binding OutputForWin}"
-                />
+                Text="{Binding OutputForWin, UpdateSourceTrigger=PropertyChanged}"/>
 
     </DockPanel>
 </Window>

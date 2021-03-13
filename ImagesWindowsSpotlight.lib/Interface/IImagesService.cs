@@ -45,14 +45,14 @@ namespace ImagesWindowsSpotlight.lib
         /// </summary>
         /// <param name="pathImagesList">коллекция адресов изображений на диске</param>
         /// <returns>коллекция перцептивных хешей</returns>
-        List<PHashAndNames> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList, CancellationToken cancellation);
+        List<PHashAndDataImage> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList, CancellationToken cancellation);
 
         /// <summary>
         /// Поиск изображений в выбранной папке
         /// </summary>
         /// <param name="pathFolder">путь к папке</param>
         /// <returns>коллекция изображений</returns>
-        List<ImageInfo> SearchImagesInFolder(string pathFolder);
+        List<PHashAndDataImage> SearchImagesInFolder(string pathFolder);
 
         /// <summary>
         /// Асинхронное сохранение изображений на диск
