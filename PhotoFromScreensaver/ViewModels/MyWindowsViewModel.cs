@@ -24,8 +24,8 @@ namespace PhotoFromScreensaver.ViewModels
             @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets";
         private string _Title = "Фото с заставки Windows. версия 0.6";
         /// <summary>Коллекция полученных изображений</summary>
-        private List<ImageInfo> _newImagesList;
-        private List<PHashAndNames> _oldImagesPHash;
+        private List<PHashAndDataImage> _newImagesList;
+        private List<PHashAndDataImage> _oldImagesPHash;
         private CancellationTokenSource _pHashCancellation;
         private string _pathFolderMyImages = @"D:\OneDrive\Новые фотографии\1\test\1\";
         /// <summary>Токен, которой сообщает о процессе вычисления поиска хеша и сравнения с другими картинками</summary> 
@@ -85,7 +85,6 @@ namespace PhotoFromScreensaver.ViewModels
         private bool CanComparisonOfNewWithCurrentExecute(object p)
         {
             bool canCompaison = _pathFolderMyImages is not null && _newImagesList is not null && _comparisonToken == false;
-
             return canCompaison;
         }
 
@@ -96,13 +95,13 @@ namespace PhotoFromScreensaver.ViewModels
             try
             {
                 _comparisonToken = true;
-                var newImagesSelected = new List<ImageInfo>();
+                var newImagesSelected = new List<PHashAndDataImage>();
                 // получить коллекцию перцептивного хеша полученных изображений
 
                 // получить коллекцию перцептивного хеша, имеющихся в папке
 
 
-                _oldImagesPHash = new List<PHashAndNames>();
+                _oldImagesPHash = new List<PHashAndDataImage>();
                 var pathOldImages = new DirectoryInfo(_pathFolderMyImages).GetFiles().ToList();
                 //oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
 
@@ -155,6 +154,7 @@ namespace PhotoFromScreensaver.ViewModels
             finally
             {
                 _comparisonToken = false;
+                
             }
         }
 
@@ -248,7 +248,6 @@ namespace PhotoFromScreensaver.ViewModels
         }
 
         #endregion
-
 
         string IDataErrorInfo.Error { get; } = null;
 

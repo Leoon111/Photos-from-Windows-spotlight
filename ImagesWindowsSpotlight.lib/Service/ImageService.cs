@@ -28,9 +28,9 @@ namespace ImagesWindowsSpotlight.lib.Service
         /// </summary>
         /// <param name="pathFolder">путь к папке</param>
         /// <returns>коллекция изображений</returns>
-        public List<ImageInfo> SearchImagesInFolder(string pathFolder)
+        public List<PHashAndDataImage> SearchImagesInFolder(string pathFolder)
         {
-            var newImagesList = new List<ImageInfo>();
+            var newImagesList = new List<PHashAndDataImage>();
 
             var photoFullFilesPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), pathFolder);
@@ -50,7 +50,7 @@ namespace ImagesWindowsSpotlight.lib.Service
                         resolution = Image.FromStream(ms).Size;
                     }
 
-                    var image = new ImageInfo
+                    var image = new PHashAndDataImage
                     {
                         Name = Path.ChangeExtension(item.Name, ".jpg"),
                         DateOfCreation = item.CreationTime,
@@ -133,9 +133,9 @@ namespace ImagesWindowsSpotlight.lib.Service
         /// </summary>
         /// <param name="pathImagesList">коллекция адресов изображений на диске</param>
         /// <returns>коллекция перцептивных хешей</returns>
-        public List<PHashAndNames> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList, CancellationToken cancellation = default)
+        public List<PHashAndDataImage> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList, CancellationToken cancellation = default)
         {
-            var pHashAndNames = new ConcurrentBag<PHashAndNames>();
+            var pHashAndNames = new ConcurrentBag<PHashAndDataImage>();
 
             ThreadPool.SetMinThreads(8, 4);
 
@@ -145,7 +145,7 @@ namespace ImagesWindowsSpotlight.lib.Service
                   {
                       cancellation.ThrowIfCancellationRequested();
                       pHashAndNames.Add(
-                          new PHashAndNames
+                          new PHashAndDataImage
                           {
                               PerceptualHash = GetPerceptualHashOfImage(pathImage.FullName),
                               Name = pathImage.Name,
