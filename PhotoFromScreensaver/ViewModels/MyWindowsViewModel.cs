@@ -95,12 +95,26 @@ namespace PhotoFromScreensaver.ViewModels
             try
             {
                 _comparisonToken = true;
-                var newImagesSelected = new List<PHashAndDataImage>();
+                _pHashCancellation = new CancellationTokenSource();
+                var cancellation = _pHashCancellation.Token;
+
+                //var newImagesSelected = new List<PHashAndDataImage>();
                 // получить коллекцию перцептивного хеша полученных изображений
+                await Task.Run(() =>
+                   {
+                       Parallel.ForEach(_newImagesList, imageData =>
+                        {
+                            _imagesService.GetPerceptualHashOfImageData(imageData);
+                        });
+                   }
+                );
+
+                //foreach (var imageData in newImagesSelected)
+                //{
+                //    _imagesService.GetPerceptualHashOfImageData(imageData);
+                //}
 
                 // получить коллекцию перцептивного хеша, имеющихся в папке
-
-
                 _oldImagesPHash = new List<PHashAndDataImage>();
                 var pathOldImages = new DirectoryInfo(_pathFolderMyImages).GetFiles().ToList();
                 //oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
@@ -108,8 +122,7 @@ namespace PhotoFromScreensaver.ViewModels
                 OutputForWin = "Производится анализ имеющихся изображений в выбранной папке";
                 try
                 {
-                    _pHashCancellation = new CancellationTokenSource();
-                    var cancellation = _pHashCancellation.Token;
+
                     await Task.Run(() =>
                     {
                         var timer = Stopwatch.StartNew();
@@ -154,7 +167,8 @@ namespace PhotoFromScreensaver.ViewModels
             finally
             {
                 _comparisonToken = false;
-                
+                // Forcing the CommandManager to raise the RequerySuggested event
+                CommandManager.InvalidateRequerySuggested();
             }
         }
 

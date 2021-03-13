@@ -10,7 +10,7 @@ namespace ImagesWindowsSpotlight.lib.Models.Base
         public string Name { get; set; }
 
         /// <summary>Разрешение изображения</summary>
-        public ResolutionImage Resolution { get; set; }
+        public Size Resolution { get; set; }
 
         /// <summary>Дата создания</summary>
         public DateTime DateOfCreation { get; set; }

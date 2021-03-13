@@ -41,30 +41,18 @@ namespace ImagesWindowsSpotlight.lib.Service
             {
                 if (IsImage(item.FullName))
                 {
-                    // таким способом я отвязываю изображение от ссылки, на данный момент не знаю другого
-                    var imageDate = File.ReadAllBytes(item.FullName);
-                    Size resolution;
-                    using (var ms = new MemoryStream())
-                    {
-                        ms.Write(imageDate, 0, imageDate.Length);
-                        resolution = Image.FromStream(ms).Size;
-                    }
+                    var imageBitmap = new Bitmap(item.FullName);
 
                     var image = new PHashAndDataImage
                     {
                         Name = Path.ChangeExtension(item.Name, ".jpg"),
                         DateOfCreation = item.CreationTime,
-                        Resolution = new ResolutionImage
-                        {
-                            Width = resolution.Width,
-                            Height = resolution.Height
-                        },
-                        ImageData = imageDate,
+                        Resolution = imageBitmap.Size,
+                        ImageBitmap = imageBitmap,
                     };
                     newImagesList.Add(image);
                 }
             }
-
             return newImagesList;
         }
 
@@ -89,8 +77,34 @@ namespace ImagesWindowsSpotlight.lib.Service
             throw new NotImplementedException();
         }
 
+        ///// <summary>
+        ///// Получение перцептивного хеша из данных Bitmap изображения
+        ///// </summary>
+        ///// <param name="imagesPath">путь к изображению</param>
+        ///// <returns>перцептивный хеш изображения</returns>
+        //public byte[] GetPerceptualHashOfImageData(Bitmap imageBitmap)
+        //{
+        //    // Уменьшаем картинку до размеров 8х8.
+        //    var miniImage = new Bitmap(imageBitmap, 8, 8);
+
+        //    return GetPerceptualHash(miniImage);
+        //}
+
         /// <summary>
-        /// Получение перцептивного хеша изображения
+        /// Добавление перцептивного хеша в объект класса PHashAndDataImage
+        /// </summary>
+        /// <param name="imageData">Данные о изображении без перцептивного хеша</param>
+        public void GetPerceptualHashOfImageData(PHashAndDataImage imageData)
+        {
+            if (imageData.PerceptualHash is null && imageData.PathImageFile is null && imageData.ImageBitmap != null && imageData.Resolution.Width > 900)
+            {
+                var pHash = GetPerceptualHash(new Bitmap(imageData.ImageBitmap, 8, 8));
+                imageData.PerceptualHash = pHash;
+            }
+        }
+
+        /// <summary>
+        /// Получение перцептивного хеша по пути изображения
         /// </summary>
         /// <param name="imagesPath">путь к изображению</param>
         /// <returns>перцептивный хеш изображения</returns>
@@ -99,6 +113,44 @@ namespace ImagesWindowsSpotlight.lib.Service
             // Уменьшаем картинку до размеров 8х8.
             var miniImage = new Bitmap(Image.FromFile(imagesPath), 8, 8);
 
+            return GetPerceptualHash(miniImage);
+        }
+
+        /// <summary>
+        /// Получение перцептивного хеша по коллекции путей изображений
+        /// </summary>
+        /// <param name="pathImagesList">коллекция адресов изображений на диске</param>
+        /// <returns>коллекция перцептивных хешей</returns>
+        public List<PHashAndDataImage> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList, CancellationToken cancellation = default)
+        {
+            var pHashImages = new ConcurrentBag<PHashAndDataImage>();
+            ThreadPool.SetMinThreads(8, 4);
+            Parallel.ForEach(pathImagesList, new ParallelOptions { MaxDegreeOfParallelism = 3 }, pathImage =>
+              {
+                  if (IsImage(pathImage.FullName))
+                  {
+                      cancellation.ThrowIfCancellationRequested();
+                      pHashImages.Add(
+                          new PHashAndDataImage
+                          {
+                              PerceptualHash = GetPerceptualHashOfImage(pathImage.FullName),
+                              Name = pathImage.Name,
+                              DateOfCreation = pathImage.CreationTime,
+                              DateLastChange = pathImage.LastWriteTime,
+                              });
+                  }
+              });
+            // todo ввести везде потокобезопасную коллекцию
+            return pHashImages.ToList();
+        }
+
+        /// <summary>
+        /// Получение хеша из уменьшенной коллекции байт изображения 8х8
+        /// </summary>
+        /// <param name="miniImage"></param>
+        /// <returns>перцептивный хеш изображения</returns>
+        private byte[] GetPerceptualHash(Bitmap miniImage)
+        {
             int _pixelNumber = 0;
             var sumOfPixelValues = new int[64];
             // Преобразование уменьшенного изображения в градиент серого воспользовавшись формулой перевода RGB в YUV
@@ -111,11 +163,9 @@ namespace ImagesWindowsSpotlight.lib.Service
                     int colorGray = (int)(bitmapColor.R * 0.299 +
                                           bitmapColor.G * 0.587 + bitmapColor.B * 0.114);
                     miniImage.SetPixel(x, y, Color.FromArgb(colorGray, colorGray, colorGray));
-
                     sumOfPixelValues[_pixelNumber++] = colorGray;
                 }
             }
-
             // Вычислите среднее значение для всех 64 пикселей уменьшенного изображения
             var averageSumOfPixelValues = sumOfPixelValues.AsQueryable().Average();
             var pHash = new byte[64];
@@ -126,35 +176,6 @@ namespace ImagesWindowsSpotlight.lib.Service
                 else pHash[i] = 0;
             }
             return pHash;
-        }
-
-        /// <summary>
-        /// Получение перцептивного хеша коллекции изображений
-        /// </summary>
-        /// <param name="pathImagesList">коллекция адресов изображений на диске</param>
-        /// <returns>коллекция перцептивных хешей</returns>
-        public List<PHashAndDataImage> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList, CancellationToken cancellation = default)
-        {
-            var pHashAndNames = new ConcurrentBag<PHashAndDataImage>();
-
-            ThreadPool.SetMinThreads(8, 4);
-
-            Parallel.ForEach(pathImagesList, new ParallelOptions { MaxDegreeOfParallelism = 3 }, pathImage =>
-              {
-                  if (IsImage(pathImage.FullName))
-                  {
-                      cancellation.ThrowIfCancellationRequested();
-                      pHashAndNames.Add(
-                          new PHashAndDataImage
-                          {
-                              PerceptualHash = GetPerceptualHashOfImage(pathImage.FullName),
-                              Name = pathImage.Name,
-                              DateLastChange = pathImage.LastWriteTime,
-                          });
-                  }
-              });
-
-            return pHashAndNames.ToList();
         }
 
         /// <summary>
