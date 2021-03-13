@@ -133,43 +133,23 @@ namespace ImagesWindowsSpotlight.lib.Service
         /// </summary>
         /// <param name="pathImagesList">коллекция адресов изображений на диске</param>
         /// <returns>коллекция перцептивных хешей</returns>
-        public List<PHashAndNames> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList)
+        public List<PHashAndNames> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList, CancellationToken cancellation = default)
         {
             var pHashAndNames = new ConcurrentBag<PHashAndNames>();
 
             ThreadPool.SetMinThreads(8, 4);
 
-            //foreach (var images in pathImagesList)
-            //{
-            //    ThreadPool.QueueUserWorkItem(o =>
-            //    {
-            //        if (IsImage(images.FullName))
-            //        {
-            //            pHashAndNames.Add(
-            //                new PHashAndNames
-            //                {
-            //                    PerceptualHash = GetPerceptualHashOfImage(images.FullName),
-            //                    Name = images.Name,
-            //                });
-            //        }
-            //    });
-            //}
-
-            //// todo костыль, реализовать по другому
-            //while (pHashAndNames.Count != pathImagesList.Count)
-            //{
-            //    Thread.Sleep(100);
-            //}
-
             Parallel.ForEach(pathImagesList, new ParallelOptions { MaxDegreeOfParallelism = 3 }, pathImage =>
               {
                   if (IsImage(pathImage.FullName))
                   {
+                      cancellation.ThrowIfCancellationRequested();
                       pHashAndNames.Add(
                           new PHashAndNames
                           {
                               PerceptualHash = GetPerceptualHashOfImage(pathImage.FullName),
                               Name = pathImage.Name,
+                              DateLastChange = pathImage.LastWriteTime,
                           });
                   }
               });

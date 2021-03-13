@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using ImagesWindowsSpotlight.lib.Models;
 
@@ -44,7 +45,7 @@ namespace ImagesWindowsSpotlight.lib
         /// </summary>
         /// <param name="pathImagesList">коллекция адресов изображений на диске</param>
         /// <returns>коллекция перцептивных хешей</returns>
-        List<PHashAndNames> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList);
+        List<PHashAndNames> GetPerceptualHashOfImagesList(List<FileInfo> pathImagesList, CancellationToken cancellation);
 
         /// <summary>
         /// Поиск изображений в выбранной папке
