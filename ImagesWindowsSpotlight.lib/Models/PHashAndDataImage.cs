@@ -1,4 +1,5 @@
-﻿using ImagesWindowsSpotlight.lib.Models.Base;
+﻿using System.Drawing;
+using ImagesWindowsSpotlight.lib.Models.Base;
 
 namespace ImagesWindowsSpotlight.lib.Models
 {
@@ -12,6 +13,6 @@ namespace ImagesWindowsSpotlight.lib.Models
         public string PathImageFile { get; set; }
 
         /// <summary>Файл изображения</summary>
-        public byte[] ImageData { get; set; }
+        public Bitmap ImageBitmap { get; set; }
     }
 }

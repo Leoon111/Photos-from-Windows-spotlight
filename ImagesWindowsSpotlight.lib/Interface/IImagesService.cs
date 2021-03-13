@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -34,14 +35,20 @@ namespace ImagesWindowsSpotlight.lib
         bool ImagesCompare(string filePath_1, string filePath_2);
 
         /// <summary>
-        /// Получение перцептивного хеша изображения
+        /// Добавление перцептивного хеша в объект класса PHashAndDataImage
+        /// </summary>
+        /// <param name="imageData">Данные о изображении без перцептивного хеша</param>
+        void GetPerceptualHashOfImageData(PHashAndDataImage imageData);
+
+        /// <summary>
+        /// Получение перцептивного хеша по пути изображения
         /// </summary>
         /// <param name="imagesPath">путь к изображению</param>
         /// <returns>перцептивный хеш изображения</returns>
         byte[] GetPerceptualHashOfImage(string imagesPath);
 
         /// <summary>
-        /// Получение перцептивного хеша коллекции изображений
+        /// Получение перцептивного хеша по коллекции путей изображений
         /// </summary>
         /// <param name="pathImagesList">коллекция адресов изображений на диске</param>
         /// <returns>коллекция перцептивных хешей</returns>
@@ -53,7 +60,7 @@ namespace ImagesWindowsSpotlight.lib
         /// <param name="pathFolder">путь к папке</param>
         /// <returns>коллекция изображений</returns>
         List<PHashAndDataImage> SearchImagesInFolder(string pathFolder);
-
+        
         /// <summary>
         /// Асинхронное сохранение изображений на диск
         /// </summary>
