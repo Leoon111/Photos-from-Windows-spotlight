@@ -41,6 +41,7 @@
                     Command="{Binding CancelingOperationCommand}"
                     Margin="5" />
             <Button Content="Выход"
+                    Command="{Binding ExitingProgramCommand}"
                     Margin="5"/>
         </UniformGrid>
 
