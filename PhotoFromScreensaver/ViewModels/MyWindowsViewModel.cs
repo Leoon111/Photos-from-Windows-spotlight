@@ -25,7 +25,7 @@ namespace PhotoFromScreensaver.ViewModels
         private string _Title = "Фото с заставки Windows. версия 0.6";
         /// <summary>Коллекция полученных изображений</summary>
         private List<PHashAndDataImage> _newImagesList;
-        private List<PHashAndDataImage> _oldImagesPHash;
+        private List<PHashAndDataImage> _oldImagesList;
         private CancellationTokenSource _pHashCancellation;
         private string _pathFolderMyImages = @"D:\OneDrive\Новые фотографии\1\test\1\";
         /// <summary>Токен, которой сообщает о процессе вычисления поиска хеша и сравнения с другими картинками</summary> 
@@ -99,27 +99,32 @@ namespace PhotoFromScreensaver.ViewModels
                 var cancellation = _pHashCancellation.Token;
 
                 //var newImagesSelected = new List<PHashAndDataImage>();
+
+                // удаляем изображения разрешением меньше 1000 в длину, т.к. они нам не нужны
+                for (int i = _newImagesList.Count - 1; i > -1; i--)
+                {
+                    if (_newImagesList[i].Resolution.Width < 1000)
+                        _newImagesList.Remove(_newImagesList[i]);
+                }
+
                 // получить коллекцию перцептивного хеша полученных изображений
                 await Task.Run(() =>
                    {
                        Parallel.ForEach(_newImagesList, imageData =>
                         {
                             _imagesService.GetPerceptualHashOfImageData(imageData);
+
                         });
                    }
                 );
 
-                //foreach (var imageData in newImagesSelected)
-                //{
-                //    _imagesService.GetPerceptualHashOfImageData(imageData);
-                //}
 
                 // получить коллекцию перцептивного хеша, имеющихся в папке
-                _oldImagesPHash = new List<PHashAndDataImage>();
+                _oldImagesList = new List<PHashAndDataImage>();
                 var pathOldImages = new DirectoryInfo(_pathFolderMyImages).GetFiles().ToList();
                 //oldImagesPHash = _imagesService.GetPerceptualHashOfImagesList(pathOldImages);
 
-                OutputForWin = "Производится анализ имеющихся изображений в выбранной папке";
+                OutputForWin = "\nПроизводится анализ имеющихся изображений в выбранной папке";
                 try
                 {
 
@@ -127,12 +132,12 @@ namespace PhotoFromScreensaver.ViewModels
                     {
                         var timer = Stopwatch.StartNew();
                         if (_imagesService != null)
-                            _oldImagesPHash =
+                            _oldImagesList =
                                 _imagesService.GetPerceptualHashOfImagesList(pathOldImages, cancellation);
                         timer.Stop();
                         OutputForWin =
-                            $"Изображения проанализированы, потраченное время: {timer.Elapsed.TotalSeconds}," +
-                            $" количество изображений {_oldImagesPHash.Count}";
+                            $"\nИзображения проанализированы, потраченное время: {timer.Elapsed.TotalSeconds}," +
+                            $" количество изображений {_oldImagesList.Count}";
                     });
                 }
                 catch (OperationCanceledException)
@@ -151,11 +156,49 @@ namespace PhotoFromScreensaver.ViewModels
                     OutputForWin = $"Произошла ошибка нахождения хеша изображения. {e.Message}";
                 }
 
-
-
-                // сохранять коллекцию хеша в файл ассоциируя их с именем изображения и записываем дату последнего изменения
+                // todo сохранять коллекцию хеша в файл ассоциируя их с именем изображения и записываем дату последнего изменения
 
                 // сравнить между собой
+                await Task.Run(() =>
+                {
+                    var timer = Stopwatch.StartNew();
+                    var countNewImages = 0;
+                    foreach (var newImage in _newImagesList)
+                    {
+                        foreach (var oldImage in _oldImagesList)
+                        {
+                            // Счетчик совпадений данных в массиве перцептивного хеша.
+                            int byteMatchCounter = 0;
+
+                            for (int i = 0; i < newImage.PerceptualHash.Length; i++)
+                            {
+                                if (newImage.PerceptualHash[i] == oldImage.PerceptualHash[i])
+                                    byteMatchCounter++;
+                            }
+
+                            if (byteMatchCounter == 64)
+                            {
+                                OutputForWin =
+                                    $"\nТочное совпадение картинки {newImage.Name} \nС картинкой {oldImage.Name}";
+                                countNewImages++;
+                            }
+                            if (byteMatchCounter == 63)
+                            {
+                                OutputForWin =
+                                    $"\nСовпадение 63 из 64 картинки {newImage.Name} \nС картинкой {oldImage.Name}";
+                                
+                            }
+                        }
+                    }
+                    timer.Stop();
+
+                    OutputForWin =
+                        $"\nИзображения проанализированы, потраченное время: {timer.Elapsed.TotalSeconds},\n" +
+                        $" количество новых изображений {countNewImages}";
+                });
+
+
+
 
                 // подготовить список изображений, которые новые без совпадений
             }
