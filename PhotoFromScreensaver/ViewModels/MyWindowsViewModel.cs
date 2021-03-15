@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -137,7 +138,7 @@ namespace PhotoFromScreensaver.ViewModels
                         timer.Stop();
                         OutputForWin =
                             $"\nИзображения проанализированы, потраченное время: {timer.Elapsed.TotalSeconds}," +
-                            $" количество изображений {_oldImagesList.Count}";
+                            $"Количество изображений {_oldImagesList.Count}";
                     });
                 }
                 catch (OperationCanceledException)
@@ -162,39 +163,53 @@ namespace PhotoFromScreensaver.ViewModels
                 await Task.Run(() =>
                 {
                     var timer = Stopwatch.StartNew();
-                    var countNewImages = 0;
+                    bool identityToken;
+                    bool[] imagesNemberArray = new bool[_newImagesList.Count];
+
                     foreach (var newImage in _newImagesList)
                     {
+                        // изначально изображение идентичное
+                        identityToken = true;
                         foreach (var oldImage in _oldImagesList)
                         {
-                            // Счетчик совпадений данных в массиве перцептивного хеша.
-                            int byteMatchCounter = 0;
 
-                            for (int i = 0; i < newImage.PerceptualHash.Length; i++)
+                            if ((newImage.Resolution.Width / newImage.Resolution.Height) == (oldImage.Resolution.Width / oldImage.Resolution.Height))
                             {
-                                if (newImage.PerceptualHash[i] == oldImage.PerceptualHash[i])
-                                    byteMatchCounter++;
-                            }
+                                // Счетчик совпадений байтов в массиве перцептивного хеша.
+                                int byteMatchCounter = 0;
+                                for (int i = 0; i < newImage.PerceptualHash.Length; i++)
+                                {
+                                    if (newImage.PerceptualHash[i] == oldImage.PerceptualHash[i])
+                                        byteMatchCounter++;
+                                }
 
-                            if (byteMatchCounter == 64)
-                            {
-                                OutputForWin =
-                                    $"\nТочное совпадение картинки {newImage.Name} \nС картинкой {oldImage.Name}";
-                                countNewImages++;
-                            }
-                            if (byteMatchCounter == 63)
-                            {
-                                OutputForWin =
-                                    $"\nСовпадение 63 из 64 картинки {newImage.Name} \nС картинкой {oldImage.Name}";
-                                
+                                // при полном совпадении - это одна и та же картинка.
+                                if (byteMatchCounter == 64)
+                                {
+                                    OutputForWin =
+                                        $"\nТочное совпадение картинки {newImage.Name} \nС картинкой {oldImage.Name}";
+                                    identityToken = false;
+                                }
+
+                                if (byteMatchCounter == 63)
+                                    OutputForWin =
+                                        $"\nСовпадение 63 из 64 картинки {newImage.Name} \nС картинкой {oldImage.Name}";
+                                if (byteMatchCounter == 62)
+                                    OutputForWin =
+                                        $"\nСовпадение 62 из 64 картинки {newImage.Name} \nС картинкой {oldImage.Name}";
                             }
                         }
+
+                        if (identityToken)
+                            imagesNemberArray[_newImagesList.IndexOf(newImage)] = true;
+                        else
+                            imagesNemberArray[_newImagesList.IndexOf(newImage)] = false;
                     }
                     timer.Stop();
-
+                    //var c = imagesNemberArray.Count(x => x == true);
                     OutputForWin =
                         $"\nИзображения проанализированы, потраченное время: {timer.Elapsed.TotalSeconds},\n" +
-                        $" количество новых изображений {countNewImages}";
+                        $"Количество новых изображений {imagesNemberArray.Count(x => x == true)}";
                 });
 
 
