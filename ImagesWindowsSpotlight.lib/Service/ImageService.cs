@@ -77,19 +77,6 @@ namespace ImagesWindowsSpotlight.lib.Service
             throw new NotImplementedException();
         }
 
-        ///// <summary>
-        ///// Получение перцептивного хеша из данных Bitmap изображения
-        ///// </summary>
-        ///// <param name="imagesPath">путь к изображению</param>
-        ///// <returns>перцептивный хеш изображения</returns>
-        //public byte[] GetPerceptualHashOfImageData(Bitmap imageBitmap)
-        //{
-        //    // Уменьшаем картинку до размеров 8х8.
-        //    var miniImage = new Bitmap(imageBitmap, 8, 8);
-
-        //    return GetPerceptualHash(miniImage);
-        //}
-
         /// <summary>
         /// Добавление перцептивного хеша в объект класса PHashAndDataImage
         /// </summary>
@@ -137,6 +124,7 @@ namespace ImagesWindowsSpotlight.lib.Service
                               Name = pathImage.Name,
                               DateOfCreation = pathImage.CreationTime,
                               DateLastChange = pathImage.LastWriteTime,
+                              Resolution = new Bitmap(pathImage.FullName).Size,
                               });
                   }
               });
