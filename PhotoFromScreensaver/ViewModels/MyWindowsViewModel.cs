@@ -31,6 +31,8 @@ namespace PhotoFromScreensaver.ViewModels
         private string _pathFolderMyImages = @"D:\OneDrive\Новые фотографии\1\test\1\";
         /// <summary>Токен, которой сообщает о процессе вычисления поиска хеша и сравнения с другими картинками</summary> 
         private bool _comparisonToken = false;
+        /// <summary>Массив с определением true по индексу новых изображений после сравнения с имеющимися</summary> 
+        private bool[] _imagesNemberArray;
 
 
         public MyWindowsViewModel(IImagesService imagesService)
@@ -119,7 +121,6 @@ namespace PhotoFromScreensaver.ViewModels
                    }
                 );
 
-
                 // получить коллекцию перцептивного хеша, имеющихся в папке
                 _oldImagesList = new List<PHashAndDataImage>();
                 var pathOldImages = new DirectoryInfo(_pathFolderMyImages).GetFiles().ToList();
@@ -128,7 +129,6 @@ namespace PhotoFromScreensaver.ViewModels
                 OutputForWin = "\nПроизводится анализ имеющихся изображений в выбранной папке";
                 try
                 {
-
                     await Task.Run(() =>
                     {
                         var timer = Stopwatch.StartNew();
@@ -164,7 +164,7 @@ namespace PhotoFromScreensaver.ViewModels
                 {
                     var timer = Stopwatch.StartNew();
                     bool identityToken;
-                    bool[] imagesNemberArray = new bool[_newImagesList.Count];
+                    _imagesNemberArray = new bool[_newImagesList.Count];
 
                     foreach (var newImage in _newImagesList)
                     {
@@ -201,23 +201,16 @@ namespace PhotoFromScreensaver.ViewModels
                         }
 
                         if (identityToken)
-                            imagesNemberArray[_newImagesList.IndexOf(newImage)] = true;
+                            _imagesNemberArray[_newImagesList.IndexOf(newImage)] = true;
                         else
-                            imagesNemberArray[_newImagesList.IndexOf(newImage)] = false;
+                            _imagesNemberArray[_newImagesList.IndexOf(newImage)] = false;
                     }
                     timer.Stop();
-                    //var c = imagesNemberArray.Count(x => x == true);
                     OutputForWin =
                         $"\nИзображения проанализированы, потраченное время: {timer.Elapsed.TotalSeconds},\n" +
-                        $"Количество новых изображений {imagesNemberArray.Count(x => x == true)}";
+                        $"Количество новых изображений {_imagesNemberArray.Count(x => x == true)}";
                 });
-
-
-
-
-                // подготовить список изображений, которые новые без совпадений
             }
-
             catch (Exception e)
             {
                 OutputForWin = $"Произошла ошибка во время обработки. {e.Message}";
@@ -228,6 +221,32 @@ namespace PhotoFromScreensaver.ViewModels
                 // Forcing the CommandManager to raise the RequerySuggested event
                 CommandManager.InvalidateRequerySuggested();
             }
+        }
+
+        #endregion
+
+        #region Command SaveImages - Сохранение изображений
+
+        /// <summary>Сохранение изображений</summary>
+        private ICommand _SaveImagesCommand;
+
+        /// <summary>Сохранение изображений</summary>
+        public ICommand SaveImagesCommand => _SaveImagesCommand
+            ??= new LambdaCommand(OnSaveImagesExecuted, CanSaveImagesExecute);
+
+        /// <summary>Проверка возможности выполнения - Сохранение изображений</summary>
+        private bool CanSaveImagesExecute(object p)
+        {
+            bool canSave = _imagesNemberArray is not null && _imagesNemberArray.Count(x => x == true) > 0 &&
+                           _newImagesList is not null && _newImagesList.Count > 0 && _pathFolderMyImages is not null &&
+                           _comparisonToken == false;
+            return canSave;
+        }
+
+        /// <summary>Логика выполнения - Сохранение изображений</summary>
+        private void OnSaveImagesExecuted(object p)
+        {
+
         }
 
         #endregion
