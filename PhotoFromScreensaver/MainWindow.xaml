@@ -34,8 +34,8 @@
                     Name="ComparisonOfNewWithCurrentButton"
                     Margin="5"/>
             <Button Content="Сохранить новые"
+                    Command="{Binding SaveImagesCommand}"
                     Name="SaveImagesButton"
-                    IsEnabled="False"
                     Margin="5"/>
             <Button Content="Отмена операции"
                     Command="{Binding CancelingOperationCommand}"
