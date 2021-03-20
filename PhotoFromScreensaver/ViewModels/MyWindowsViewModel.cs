@@ -26,7 +26,7 @@ namespace PhotoFromScreensaver.ViewModels
         /// <summary>Путь к файлу где в Виндовс находятся картинки для заставки</summary>
         private string _pathToPicturesScreensaver =
             @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets";
-        private string _Title = "Фото с заставки Windows. версия 0.6";
+        private string _Title = "Фото с заставки Windows. версия 1.0";
         /// <summary>Коллекция полученных изображений</summary>
         private List<PHashAndDataImage> _newImagesList;
         private List<PHashAndDataImage> _oldImagesList;
