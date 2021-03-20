@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Photos Windows spotlight", "Photos Windows spotlight.csproj", "{8094DF4F-EB14-4578-B48E-763E38B68792}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImagesWindowsSpotlight.lib", "..\ImagesWindowsSpotlight.lib\ImagesWindowsSpotlight.lib.csproj", "{13BCF08E-C5CD-44C9-AA24-7B3EF712D828}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhotoFromScreensaver", "..\PhotoFromScreensaver\PhotoFromScreensaver.csproj", "{19588E6A-D655-458B-A45B-B8F9CAFFDC3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImagesWindowsSpotlight.lib.Tests", "..\Tests\ImagesWindowsSpotlight.lib.Tests\ImagesWindowsSpotlight.lib.Tests.csproj", "{B4351D13-7FBB-4549-87D6-F3A2CB5F0827}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImagesWindowsSpotlight.lib.Tests", "..\Tests\ImagesWindowsSpotlight.lib.Tests\ImagesWindowsSpotlight.lib.Tests.csproj", "{B4351D13-7FBB-4549-87D6-F3A2CB5F0827}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8094DF4F-EB14-4578-B48E-763E38B68792}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8094DF4F-EB14-4578-B48E-763E38B68792}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8094DF4F-EB14-4578-B48E-763E38B68792}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8094DF4F-EB14-4578-B48E-763E38B68792}.Release|Any CPU.Build.0 = Release|Any CPU
 		{13BCF08E-C5CD-44C9-AA24-7B3EF712D828}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{13BCF08E-C5CD-44C9-AA24-7B3EF712D828}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13BCF08E-C5CD-44C9-AA24-7B3EF712D828}.Release|Any CPU.ActiveCfg = Release|Any CPU

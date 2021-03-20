@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ImagesWindowsSpotlight.lib;
@@ -20,15 +23,16 @@ namespace PhotoFromScreensaver.ViewModels
     class MyWindowsViewModel : ViewModel, IDataErrorInfo
     {
         private readonly IImagesService _imagesService;
-        // путь к файлу где в Виндовс находятся картинки для заставки
-        private string _pathToPicturesLocal =
+        /// <summary>Путь к файлу где в Виндовс находятся картинки для заставки</summary>
+        private string _pathToPicturesScreensaver =
             @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets";
         private string _Title = "Фото с заставки Windows. версия 0.6";
         /// <summary>Коллекция полученных изображений</summary>
         private List<PHashAndDataImage> _newImagesList;
         private List<PHashAndDataImage> _oldImagesList;
         private CancellationTokenSource _pHashCancellation;
-        private string _pathFolderMyImages = @"D:\OneDrive\Новые фотографии\1\test\1\";
+        /// <summary>Путь к папке с изображениями</summary>
+        private string _pathFolderMyImages;
         /// <summary>Токен, которой сообщает о процессе вычисления поиска хеша и сравнения с другими картинками</summary> 
         private bool _comparisonToken = false;
         /// <summary>Массив с определением true по индексу новых изображений после сравнения с имеющимися</summary> 
@@ -38,9 +42,41 @@ namespace PhotoFromScreensaver.ViewModels
         public MyWindowsViewModel(IImagesService imagesService)
         {
             _imagesService = imagesService;
+#if DEBUG
+            _pathFolderMyImages = @"E:\OneDrive\Новые фотографии\1\test\1";
+#endif
         }
 
         #region Команды
+
+        #region Command OpenFolderDialog - Открытие пути к картинкам
+
+        /// <summary>Открытие пути к картинкам</summary>
+        private ICommand _OpenFolderDialogCommand;
+
+        /// <summary>Открытие пути к картинкам</summary>
+        public ICommand OpenFolderDialogCommand => _OpenFolderDialogCommand
+            ??= new LambdaCommand(OnOpenFolderDialogExecuted, CanOpenFolderDialogExecute);
+
+        /// <summary>Проверка возможности выполнения - Открытие пути к картинкам</summary>
+        private bool CanOpenFolderDialogExecute(object p)
+        {
+            var canOpenFolderDialog = !_comparisonToken;
+            return canOpenFolderDialog;
+        }
+
+        /// <summary>Логика выполнения - Открытие пути к картинкам</summary>
+        private void OnOpenFolderDialogExecuted(object p)
+        {
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+            var result = folderBrowserDialog.ShowDialog();
+            if (!string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
+            {
+                PathFolderMyImages = folderBrowserDialog.SelectedPath;
+            }
+        }
+
+        #endregion
 
         #region Command SearchImagesInFolder - поиск картинок папке для заставок экрана
 
@@ -60,7 +96,7 @@ namespace PhotoFromScreensaver.ViewModels
         /// <summary>Логика выполнения - Поиск картинок</summary>
         private void OnSearchImagesInFolderExecuted(object p)
         {
-            _newImagesList = _imagesService.SearchImagesInFolder(_pathToPicturesLocal);
+            _newImagesList = _imagesService.SearchImagesInFolder(_pathToPicturesScreensaver);
             if (_newImagesList.Count > 0)
             {
                 OutputForWin = "Найдены изображения:";
@@ -138,7 +174,7 @@ namespace PhotoFromScreensaver.ViewModels
                         timer.Stop();
                         OutputForWin =
                             $"\nИзображения проанализированы, потраченное время: {timer.Elapsed.TotalSeconds}," +
-                            $"Количество изображений {_oldImagesList.Count}";
+                            $"Количество изображений {_oldImagesList.Count}\n";
                     });
                 }
                 catch (OperationCanceledException)
@@ -246,7 +282,27 @@ namespace PhotoFromScreensaver.ViewModels
         /// <summary>Логика выполнения - Сохранение изображений</summary>
         private void OnSaveImagesExecuted(object p)
         {
+            int k = 0; // переменная для имени файла
+            foreach (var pHashAndDataImage in _newImagesList)
+            {
+                OutputForWin = $"\nОбработка изображения с изначальным именем {pHashAndDataImage.Name}";
+                //var q = File.GetCreationTime(pathGoodPhoto).ToShortDateString();
+                pHashAndDataImage.Name = String.Concat(
+                        "Photo_",
+                        pHashAndDataImage.DateOfCreation.ToString(CultureInfo.CurrentCulture).Replace(':', '-').Replace(' ', '_'),
+                        "_", "(" + k + ")", ".jpg");
 
+                var newPath = Path.Combine(_pathFolderMyImages, pHashAndDataImage.Name);
+
+                pHashAndDataImage.ImageBitmap.Save(newPath, ImageFormat.Jpeg);
+
+                k++;
+
+                OutputForWin = $"Сохранение в {newPath} выполнено успешно";
+
+                //File.Copy(pathGoodPhoto, newPath, true);
+                //SetTextOutputForWin($"Копирование в {newPath} выполнено успешно");
+            }
         }
 
         #endregion
@@ -333,7 +389,7 @@ namespace PhotoFromScreensaver.ViewModels
                 //if (!Directory.Exists(_pathFolderMyImages))
                 //    throw new ArgumentException("Данной папки не существует", nameof(value));
 
-                if (Directory.Exists(_pathFolderMyImages))
+                if (Directory.Exists(value))
                     Set(ref _pathFolderMyImages, value);
             }
         }
