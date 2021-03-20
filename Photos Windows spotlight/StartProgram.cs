@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 using System.Drawing;
 using System.Windows.Forms;
+using ImagesWindowsSpotlight.lib;
+using ImagesWindowsSpotlight.lib.Models;
+using ImagesWindowsSpotlight.lib.Service;
 
 namespace Photos_Windows_spotlight
 {
@@ -15,11 +18,18 @@ namespace Photos_Windows_spotlight
         private MainWindow _mainWindow;
         private XMLData _xmlData;
         private Configuration _configuration;
-
+        private readonly string _pathToPicturesLocal;
+        private ImageService _imageService;
         public StartProgram()
         {
             _xmlData = new XMLData();
-            // ? проверяем, если в настройках есть "Запускать проверку в фоне при старет", то старуем
+            // Запускать проверку в фоне при старет
+
+
+            // путь к файлу где в Виндовс находятся картинки для заставки
+            _pathToPicturesLocal = @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets";
+
+            _imageService = new ImageService();
         }
 
         /// <summary>
@@ -65,43 +75,7 @@ namespace Photos_Windows_spotlight
             return _xmlData;
         }
 
-        public List<string> SearchFilesInWindowsFolder()
-        {
-            var photoFilesPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets"
-                                             );
-
-            //SetTextOutputForWin($"GetFolderPath: {photoFilesPath}");
-
-            /// получение списка файлов в директории.
-            var allPhotoFiles = new DirectoryInfo(photoFilesPath).GetFiles().ToList();
-
-
-            // новый массив для выбранных по размеру файлов из следующего перебора
-            List<string> pathGoodPhotos = new List<string>();
-
-            /// перебираем файлы в папке
-            foreach (var item in allPhotoFiles)
-            {
-                /// ограничиваем размер файла для того, чтоб не попали ненужные фалы, не картинки
-                /// это предыдущее решение(глупое, но простое), переделать на определение картинки
-                if (item.Length > 200000)
-                {
-                    using (Bitmap bitmap = new Bitmap(item.FullName))
-                    {
-
-                        /// отбираем картинки только с шириной минимум 1900
-                        if (bitmap.Width > 1900)
-                        //if (item.Length > 1900) // для портретного режима
-                        {
-                            pathGoodPhotos.Add(item.FullName);
-                        }
-                    }
-                }
-            }
-            return pathGoodPhotos;
-        }
+        
 
         private void XmlConafigurationFile()
         {
@@ -130,7 +104,7 @@ namespace Photos_Windows_spotlight
         {
             int k = 0; // переменная для имени файла (временное значение)
 
-            /// Проверяем фотото на наличие копий, уже имеющихся в папке назначения.
+            // Проверяем фотото на наличие копий, уже имеющихся в папке назначения.
             CheckingPhotosForCopies(ref pathGoodPhotos, pathSaveImages);
 
             if (pathGoodPhotos.Count == 0)
@@ -163,51 +137,51 @@ namespace Photos_Windows_spotlight
         /// <param name="folderBrowserDialog">Выбранная папка для копирования в нее картинок</param>
         private static void CheckingPhotosForCopies(ref List<string> pathGoodPhotosOfImageInTheSystemDirectory, string pathSaveImages)
         {
-            /// Получаем список файлов картинок в выбранной директории.
+            // Получаем список файлов картинок в выбранной директории.
             var listOfImageFiles = Directory.GetFiles(pathSaveImages, "*.jpg").ToList();
 
-            /// Получаем перцептивный хеш картинок в выбранной директории.
+            // Получаем перцептивный хеш картинок в выбранной директории.
 
-            /// Коллекция перцептивного хеша картинок в выбранной директории.
+            // Коллекция перцептивного хеша картинок в выбранной директории.
             var perceptualHashOfImagesInTheCollection = new List<int[]>();
 
             // todo здесь мы съедаем 2 гб памати в форыче за счет значимых переменных
 
-            /// Перебираем каждый адрес к картинке в выбранной директории.
+            // Перебираем каждый адрес к картинке в выбранной директории.
 
-            /// Добавляем перцептивный хеш каждой картинки в коллекцию.
+            // Добавляем перцептивный хеш каждой картинки в коллекцию.
             perceptualHashOfImagesInTheCollection.AddRange(new PerceptualHash().PerceptualHashOfImages(listOfImageFiles));
 
 
-            /// Адреса картинок, которые уже есть в выбранной дирректории.
+            // Адреса картинок, которые уже есть в выбранной дирректории.
             var existingImageURLs = new List<string>();
 
-            /// Перебор коллекции адресов в системной директории
+            // Перебор коллекции адресов в системной директории
             foreach (var pathGoodPhotoOfImageInTheSystemDirectory in pathGoodPhotosOfImageInTheSystemDirectory)
             {
-                /// Получаем перцептивный хеш одной картинки из системной директории.
+                // Получаем перцептивный хеш одной картинки из системной директории.
                 int[] perceptualHashOfImageInTheSystemDirectory = new PerceptualHash().PerceptualHashOfImage(pathGoodPhotoOfImageInTheSystemDirectory);
 
-                /// Сравниваем хеш каждой картинки из системной дирректории с хешом картинки из выбранной по каждому числу,
-                /// если хеш первой находит аналогию, то адрес этой картинки добавляем в сиписок, который 
-                /// далее вычтем из списка адресов.
+                // Сравниваем хеш каждой картинки из системной дирректории с хешом картинки из выбранной по каждому числу,
+                // если хеш первой находит аналогию, то адрес этой картинки добавляем в сиписок, который 
+                // далее вычтем из списка адресов.
                 foreach (var perceptualHashImageInTheCollection in perceptualHashOfImagesInTheCollection)
                 {
-                    /// Счетчик совпадений данных в массиве перцептивного хеша.
+                    // Счетчик совпадений данных в массиве перцептивного хеша.
                     int coincidenceCounter = 0;
 
-                    /// Перебираем каждый массив данных по числу.
+                    // Перебираем каждый массив данных по числу.
                     for (int i = 0; i < perceptualHashOfImageInTheSystemDirectory.Length; i++)
                     {
-                        /// Если цифра с одинаковым индексом в хешах совпадает, добавляем 1 к счетчику.
+                        // Если цифра с одинаковым индексом в хешах совпадает, добавляем 1 к счетчику.
                         if (perceptualHashOfImageInTheSystemDirectory[i] == perceptualHashImageInTheCollection[i])
                         {
                             coincidenceCounter++;
                         }
                     }
 
-                    /// Если совпадение составляет больше 62 из 64, то мы считаем, что фото идентичное
-                    /// и добавляем в коллекцию адресов уже существующих картинок.
+                    // Если совпадение составляет больше 62 из 64, то мы считаем, что фото идентичное
+                    // и добавляем в коллекцию адресов уже существующих картинок.
                     if (coincidenceCounter > 63)
                     {
                         existingImageURLs.Add(pathGoodPhotoOfImageInTheSystemDirectory);
@@ -215,18 +189,18 @@ namespace Photos_Windows_spotlight
                 }
             }
 
-            /// Проверяем, если не пустая коллекция адресов с идентичными картинками, то
+            // Проверяем, если не пустая коллекция адресов с идентичными картинками, то
             if (existingImageURLs.Count != 0)
             {
-                /// Перебираем коллекцию адресов на удаление.
+                // Перебираем коллекцию адресов на удаление.
                 foreach (var item in existingImageURLs)
                 {
-                    /// Удаляем по одному адресу из коллекции.
+                    // Удаляем по одному адресу из коллекции.
                     pathGoodPhotosOfImageInTheSystemDirectory.Remove(item);
                 }
             }
         }
 
-        
+
     }
 }

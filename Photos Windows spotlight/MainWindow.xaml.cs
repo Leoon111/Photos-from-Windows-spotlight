@@ -1,19 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using ImagesWindowsSpotlight.lib.Models;
+using ImagesWindowsSpotlight.lib.Service;
 
 namespace Photos_Windows_spotlight
 {
@@ -28,7 +19,7 @@ namespace Photos_Windows_spotlight
 
         private StartProgram _startProgram;
 
-        private List<string> _goodPhotosCollectionsPath;
+        private List<PHashAndDataImage> _goodPhotosCollectionsPath;
 
         private XMLData _xMLData;
 
@@ -56,8 +47,8 @@ namespace Photos_Windows_spotlight
             _folderBrowserDialog.Description = "Выберите папку, куда будут сохраняться картинки";
             /// Тестовая папка на моем компе, проверяю, если ее нет, то открываем Мой Компьютер (если не мой компьютер)
             _folderBrowserDialog.SelectedPath =
-                Directory.Exists(@"E:\OneDrive\Новые фотографии\1\test\1\")
-                ? @"E:\OneDrive\Новые фотографии\1\test\1\"
+                Directory.Exists(@"D:\OneDrive\Новые фотографии\1\test\1\")
+                ? @"D:\OneDrive\Новые фотографии\1\test\1\"
                 : Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
 
             /// метод сохранения
@@ -85,26 +76,29 @@ namespace Photos_Windows_spotlight
 
         private void FindNewImagesButton_Click(object sender, RoutedEventArgs e)
         {
-            /// переменная для вывода дат найденных картинок
-            var DateOfTheImagesFound = new List<DateTime>();
+            // переменная для вывода дат найденных картинок
+            var dateOfTheImagesFound = new List<DateTime>();
 
-            _goodPhotosCollectionsPath = _startProgram.SearchFilesInWindowsFolder();
+            //_goodPhotosCollectionsPath = _startProgram.SearchFilesInWindowsFolder();
+            _goodPhotosCollectionsPath =
+                new ImageService().SearchImagesInFolder(
+                    @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets");
 
-            /// Перебираем адреса найденных картинок, создавая колекцию дат картинок для информации.
-            foreach (var pathGoodPhoto in _goodPhotosCollectionsPath)
-            {
-                DateOfTheImagesFound.Add(File.GetCreationTime(pathGoodPhoto));
-            }
+            // Перебираем адреса найденных картинок, создавая колекцию дат картинок для информации.
+            //foreach (var pathGoodPhoto in _goodPhotosCollectionsPath)
+            //{
+            //    dateOfTheImagesFound.Add(File.GetCreationTime(pathGoodPhoto));
+            //}
 
-            /// Сортируем коллекцию по умолчанию
-            DateOfTheImagesFound.Sort();
+            // Сортируем коллекцию по умолчанию
+            //dateOfTheImagesFound.Sort();
 
-            /// Формируем сообщение для вывода в окно.
+            // Формируем сообщение для вывода в окно.
             string outputMessage = "Найдены картинки с датами загрузки в Windows:";
-            foreach (var item in DateOfTheImagesFound)
-            {
-                outputMessage += $"\n{DateOfTheImagesFound.IndexOf(item)} - {item.ToString()}";
-            }
+            //foreach (var item in dateOfTheImagesFound)
+            //{
+            //    outputMessage += $"\n{dateOfTheImagesFound.IndexOf(item)} - {item.ToString()}";
+            //}
 
             _startProgram.SetTextOutputForWin(outputMessage);
             SaveImagesButton.IsEnabled = ValidateVisibleSaveButton();
@@ -113,7 +107,7 @@ namespace Photos_Windows_spotlight
         private void SaveImagesButton_Click(object sender, RoutedEventArgs e)
         {
             /// скопировать и переименовать файлы
-            _startProgram.SaveMethod(_goodPhotosCollectionsPath, _pathSaveImages);
+            //_startProgram.SaveMethod(_goodPhotosCollectionsPath, _pathSaveImages);
         }
 
         /// <summary>
