@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<Photos>
+	<PhotoData>
+		<Name>123</Name>
+		<Size>45</Size>
+		<FileDate>12.12.12</FileDate>
+		<PreviousName>001100</PreviousName>
+	</PhotoData>
+  <PhotoData>
+    <Name>123</Name>
+    <Size>45</Size>
+    <FileDate>12.12.12</FileDate>
+    <PreviousName>001100</PreviousName>
+  </PhotoData>
+</Photos>
