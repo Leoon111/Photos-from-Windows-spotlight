@@ -19,6 +19,7 @@
                      Text="{Binding PathFolderMyImages, NotifyOnValidationError=True, ValidatesOnDataErrors=True, ValidatesOnNotifyDataErrors=True, ValidatesOnExceptions=True}"
                      Name="TextBoxPathToDirectory"/>
             <Button Grid.Column="1" Content="Обзор"
+                    Command="{Binding OpenFolderDialogCommand}"
                     Name="ButtonPathToDirectory"
                     Margin="5, 0"/>
         </Grid>
