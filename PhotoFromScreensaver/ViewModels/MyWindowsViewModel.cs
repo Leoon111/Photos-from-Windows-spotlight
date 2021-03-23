@@ -285,23 +285,26 @@ namespace PhotoFromScreensaver.ViewModels
             int k = 0; // переменная для имени файла
             foreach (var pHashAndDataImage in _newImagesList)
             {
-                OutputForWin = $"\nОбработка изображения с изначальным именем {pHashAndDataImage.Name}";
-                //var q = File.GetCreationTime(pathGoodPhoto).ToShortDateString();
-                pHashAndDataImage.Name = String.Concat(
+                if (_imagesNemberArray[_newImagesList.IndexOf(pHashAndDataImage)] == true)
+                {
+                    OutputForWin = $"\nОбработка изображения с изначальным именем {pHashAndDataImage.Name}";
+                    //var q = File.GetCreationTime(pathGoodPhoto).ToShortDateString();
+                    pHashAndDataImage.Name = String.Concat(
                         "Photo_",
                         pHashAndDataImage.DateOfCreation.ToString(CultureInfo.CurrentCulture).Replace(':', '-').Replace(' ', '_'),
                         "_", "(" + k + ")", ".jpg");
 
-                var newPath = Path.Combine(_pathFolderMyImages, pHashAndDataImage.Name);
+                    var newPath = Path.Combine(_pathFolderMyImages, pHashAndDataImage.Name);
 
-                pHashAndDataImage.ImageBitmap.Save(newPath, ImageFormat.Jpeg);
+                    pHashAndDataImage.ImageBitmap.Save(newPath, ImageFormat.Jpeg);
 
-                k++;
+                    k++;
 
-                OutputForWin = $"Сохранение в {newPath} выполнено успешно";
+                    OutputForWin = $"Сохранение в {newPath} выполнено успешно";
 
-                //File.Copy(pathGoodPhoto, newPath, true);
-                //SetTextOutputForWin($"Копирование в {newPath} выполнено успешно");
+                    //File.Copy(pathGoodPhoto, newPath, true);
+                    //SetTextOutputForWin($"Копирование в {newPath} выполнено успешно");
+                }
             }
         }
 
