@@ -134,7 +134,7 @@ namespace Photos_Windows_spotlight
         /// Проверяет наличие копий картинок в данных директориях.
         /// </summary>
         /// <param name="pathGoodPhotos">Коллекция адресов из одной дирректории</param>
-        /// <param name="folderBrowserDialog">Выбранная папка для копирования в нее картинок</param>
+        /// <param name="pathSaveImages">Путь к папке назначения</param>
         private static void CheckingPhotosForCopies(ref List<string> pathGoodPhotosOfImageInTheSystemDirectory, string pathSaveImages)
         {
             // Получаем список файлов картинок в выбранной директории.
