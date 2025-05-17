@@ -376,10 +376,10 @@ namespace PhotoFromScreensaver.ViewModels
             get => _OutputForWin;
             set
             {
-                if (Dispatcher.CurrentDispatcher.CheckAccess())
+                if (App.Current.Dispatcher.CheckAccess())
                     Set(ref _OutputForWin, String.Concat(_OutputForWin, "\n", value));
                 else
-                    Dispatcher.CurrentDispatcher.Invoke(() =>
+                    App.Current.Dispatcher.Invoke(() =>
                         Set(ref _OutputForWin, String.Concat(_OutputForWin, "\n", value)));
             }
         }
